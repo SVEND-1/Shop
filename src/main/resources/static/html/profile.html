@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - MyShop</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="header">
+    <!-- Тот же header -->
+</header>
+
+<div class="container">
+    <div class="profile-content">
+        <div class="profile-sidebar">
+            <div class="user-info">
+                <img src="../images/avatar.jpg" alt="Аватар" class="avatar">
+                <h3>Иван Иванов</h3>
+                <p>ivan@mail.ru</p>
+            </div>
+
+            <nav class="profile-nav">
+                <a href="#personal" class="nav-link active">Личные данные</a>
+                <a href="#orders" class="nav-link">Мои заказы</a>
+                <a href="#addresses" class="nav-link">Адреса доставки</a>
+                <a href="#favorites" class="nav-link">Избранное</a>
+                <a href="#security" class="nav-link">Безопасность</a>
+            </nav>
+        </div>
+
+        <div class="profile-main">
+            <!-- Личные данные -->
+            <div id="personal" class="profile-section">
+                <h2>Личные данные</h2>
+                <form class="profile-form">
+                    <div class="form-group">
+                        <label>ФИО</label>
+                        <input type="text" value="Иван Иванов">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" value="ivan@mail.ru">
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="tel" value="+7 (999) 999-99-99">
+                    </div>
+                    <button type="submit" class="btn-primary">Сохранить изменения</button>
+                </form>
+            </div>
+
+            <!-- История заказов -->
+            <div id="orders" class="profile-section" style="display:none">
+                <h2>История заказов</h2>
+                <div class="orders-list">
+                    <!-- Заказы будут здесь -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../js/profile.js"></script>
+</body>
+</html>

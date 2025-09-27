@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - MyShop</title>
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Регистрация</h1>
+            <p>Создайте свой аккаунт</p>
+        </div>
+
+        <form class="auth-form" id="registerForm">
+            <div class="form-group">
+                <label for="fullName">ФИО</label>
+                <input type="text" id="fullName" name="fullName" required placeholder="Иванов Иван Иванович">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="example@mail.ru">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Телефон</label>
+                <input type="tel" id="phone" name="phone" required placeholder="+7 (999) 999-99-99">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required placeholder="Не менее 6 символов">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Подтверждение пароля</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Повторите пароль">
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox">
+                    <input type="checkbox" name="agree" required>
+                    <span>Я согласен с <a href="#">правилами</a> и <a href="#">политикой конфиденциальности</a></span>
+                </label>
+            </div>
+
+            <button type="submit" class="auth-btn">Зарегистрироваться</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Уже есть аккаунт? <a href="/login" class="auth-link">Войти</a></p>
+        </div>
+    </div>
+</div>
+
+<script src="/js/auth.js"></script>
+</body>
+</html>

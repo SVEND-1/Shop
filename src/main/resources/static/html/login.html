@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - MyShop</title>
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Вход в MyShop</h1>
+            <p>Добро пожаловать обратно!</p>
+        </div>
+
+        <form class="auth-form" id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="Ваш email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required placeholder="Ваш пароль">
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox">
+                    <input type="checkbox" name="remember">
+                    <span>Запомнить меня</span>
+                </label>
+                <a href="/forgot-password" class="forgot-link">Забыли пароль?</a>
+            </div>
+
+            <button type="submit" class="auth-btn">Войти</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Нет аккаунта? <a href="/register" class="auth-link">Зарегистрироваться</a></p>
+        </div>
+    </div>
+</div>
+
+<script src="/js/auth.js"></script>
+</body>
+</html>

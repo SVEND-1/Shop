@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Название товара - MyShop</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="header">
+    <!-- Тот же header что и на главной -->
+</header>
+
+<div class="container">
+    <div class="product-detail">
+        <div class="product-images">
+            <img src="../images/product1.jpg" alt="Товар" id="mainImage">
+            <div class="product-thumbnails">
+                <img src="../images/product1.jpg" alt="Миниатюра 1" onclick="changeImage(this)">
+                <img src="../images/product2.jpg" alt="Миниатюра 2" onclick="changeImage(this)">
+                <img src="../images/product3.jpg" alt="Миниатюра 3" onclick="changeImage(this)">
+            </div>
+        </div>
+
+        <div class="product-info">
+            <h1 id="productTitle">Название товара</h1>
+            <div class="product-price">
+                <span class="current-price" id="productPrice">₽ 9 999</span>
+                <span class="old-price">₽ 12 999</span>
+            </div>
+
+            <div class="product-rating">
+                ★★★★★ <span>(128 отзывов)</span>
+            </div>
+
+            <div class="product-description">
+                <p id="productDescription">Описание товара...</p>
+            </div>
+
+            <div class="product-actions">
+                <div class="quantity-selector">
+                    <button onclick="decreaseQuantity()">-</button>
+                    <span id="quantity">1</span>
+                    <button onclick="increaseQuantity()">+</button>
+                </div>
+
+                <button class="btn-primary" onclick="addToCart()">Добавить в корзину</button>
+                <button class="btn-secondary">❤️ В избранное</button>
+            </div>
+
+            <div class="product-specs">
+                <h4>Характеристики:</h4>
+                <ul id="productSpecs">
+                    <li>Категория: <span>Электроника</span></li>
+                    <li>Бренд: <span>Brand Name</span></li>
+                    <li>Гарантия: <span>12 месяцев</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Отзывы -->
+    <section class="reviews">
+        <h3>Отзывы покупателей</h3>
+        <div class="reviews-list">
+            <!-- Отзывы будут загружены динамически -->
+        </div>
+    </section>
+</div>
+
+<script src="../js/product.js"></script>
+</body>
+</html>
