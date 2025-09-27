@@ -39,6 +39,20 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
 
+    public User(Long id, String email, String name, String password, Role role, String address, List<Order> orders, Cart cart) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.role = role;
+        this.address = address;
+        this.orders = orders;
+        this.cart = cart;
+    }
+
+    public User() {
+    }
+
     private enum Role {
         USER, ADMIN
     }

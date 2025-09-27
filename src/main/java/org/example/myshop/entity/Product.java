@@ -43,6 +43,22 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> cartItems = new ArrayList<>();
 
+    public Product(Long id, String name, Double price, int count, String description, String image, Category category, List<OrderItem> orderItems, List<CartItem> cartItems) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.count = count;
+        this.description = description;
+        this.image = image;
+        this.category = category;
+        this.orderItems = orderItems;
+        this.cartItems = cartItems;
+    }
+
+    public Product() {
+
+    }
+
     public enum Category {
         ELECTRONICS, CLOTHING, BOOKS, FOOD, SPORTS, HOME, BEAUTY, OTHER
     }
