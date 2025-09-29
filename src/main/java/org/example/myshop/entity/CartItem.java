@@ -30,6 +30,17 @@ public class CartItem {
     @Column(name = "price")
     private BigDecimal price;
 
+    public CartItem(Long id, Cart cart, Product product, Integer quantity, BigDecimal price) {
+        this.id = id;
+        this.cart = cart;
+        this.product = product;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    public CartItem() {
+    }
+
     public void calculatePrice() {
         if (product != null && product.getPrice() != null) {
             this.price = BigDecimal.valueOf(product.getPrice()).multiply(BigDecimal.valueOf(quantity));

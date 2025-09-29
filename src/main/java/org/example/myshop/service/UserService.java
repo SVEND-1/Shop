@@ -19,19 +19,23 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User getUserById(Long id) {
+    public User getById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
+    }
+
+    public User getByEmail(String email) {
+        return userRepository.getUserByEmail(email);
     }
 
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
-    public User createUser(User userToCreate) {
+    public User create(User userToCreate) {
         return userRepository.save(userToCreate);
     }
 
-    public User updateUser(Long id, User userToUpdate) {
+    public User update(Long id, User userToUpdate) {
         User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
         User updatedUser = new User(
                 user.getId(),
@@ -45,10 +49,11 @@ public class UserService {
         return userRepository.save(updatedUser);
     }
 
-    public void deletedUser(Long id) {
+    public void deleted(Long id) {
         if(!userRepository.existsById(id)){
             throw new NoSuchElementException("не найден");
         }
         userRepository.deleteById(id);
     }
+
 }

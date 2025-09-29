@@ -33,6 +33,16 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    public Order() {
+    }
+
+    public Order(Long id, User user, OrderStatus status, BigDecimal totalAmount, List<OrderItem> orderItems) {
+        this.id = id;
+        this.user = user;
+        this.status = status;
+        this.totalAmount = totalAmount;
+        this.orderItems = orderItems;
+    }
 
     public void calculateTotalAmount() {
         this.totalAmount = orderItems.stream()

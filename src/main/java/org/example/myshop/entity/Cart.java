@@ -29,6 +29,16 @@ public class Cart {
     @Column(name = "total_price")
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
+    public Cart() {
+    }
+
+    public Cart(Long id, User user, List<CartItem> cartItems, BigDecimal totalPrice) {
+        this.id = id;
+        this.user = user;
+        this.cartItems = cartItems;
+        this.totalPrice = totalPrice;
+    }
+
     public void calculateTotalPrice() {
         this.totalPrice = cartItems.stream()
                 .map(item -> {
@@ -39,14 +49,21 @@ public class Cart {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void addCartItem(Product product, Integer quantity) {
+    public void addCartItem(Product product) {
         CartItem cartItem = new CartItem();
         cartItem.setCart(this);
         cartItem.setProduct(product);
-        cartItem.setQuantity(quantity);
         cartItem.calculatePrice();
         this.cartItems.add(cartItem);
         calculateTotalPrice();
+    }
+
+    public void removeCartItemByProduct(Product product) {
+        boolean removed = cartItems.removeIf(item ->
+                item.getProduct() != null && item.getProduct().getId().equals(product.getId()));
+        if (removed) {
+            calculateTotalPrice();
+        }
     }
 
     public void clearCart() {

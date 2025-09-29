@@ -20,20 +20,20 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Product getProductById(Long id) {
+    public Product getById(Long id) {
         return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
     }
 
-    public List<Product> findAllProducts() {
+    public List<Product> findAll() {
         return productRepository.findAll();
     }
 
-    public Product createProduct(Product productToCreate) {
+    public Product create(Product productToCreate) {
         //TODO: Дописать проверку на админа
         return productRepository.save(productToCreate);
     }
 
-    public Product updateProduct(Long id, Product productToUpdate) {
+    public Product update(Long id, Product productToUpdate) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
         Product updatedProduct = new Product(
                 product.getId(),
@@ -48,7 +48,7 @@ public class ProductService {
         return productRepository.save(updatedProduct);
     }
 
-    public void deletedProduct(Long id) {
+    public void deleted(Long id) {
         if(!productRepository.existsById(id)){
             throw new NoSuchElementException("не найден");
         }
