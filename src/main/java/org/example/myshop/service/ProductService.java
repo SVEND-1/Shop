@@ -15,9 +15,12 @@ import java.util.NoSuchElementException;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final UserService userService;
 
-    public ProductService(ProductRepository productRepository) {
+    @Autowired
+    public ProductService(ProductRepository productRepository,UserService userService) {
         this.productRepository = productRepository;
+        this.userService = userService;
     }
 
     public Product getById(Long id) {
@@ -28,8 +31,13 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product create(Product productToCreate) {
-        //TODO: Дописать проверку на админа
+    public Product create(Product productToCreate,Long userId) {
+        if(userService.getById(userId) == null) {
+            throw new NoSuchElementException("Пользователь с таким id не найден");
+        }
+        else if(userService.getById(userId).getRole() == User.Role.USER) {
+            throw new RuntimeException("У пользователя не достаточно прав");
+        }
         return productRepository.save(productToCreate);
     }
 

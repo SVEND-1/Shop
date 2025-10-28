@@ -11,19 +11,17 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "cards")
-@Getter
-@Setter
 public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
     @Column(name = "total_price")
@@ -39,6 +37,38 @@ public class Cart {
         this.totalPrice = totalPrice;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
+    }
+
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
     public void calculateTotalPrice() {
         this.totalPrice = cartItems.stream()
                 .map(item -> {
@@ -49,18 +79,19 @@ public class Cart {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void addCartItem(Product product) {
+    public void addCartItem(Product product,int quantity) {
         CartItem cartItem = new CartItem();
         cartItem.setCart(this);
         cartItem.setProduct(product);
+        cartItem.setQuantity(quantity);
         cartItem.calculatePrice();
         this.cartItems.add(cartItem);
         calculateTotalPrice();
     }
 
-    public void removeCartItemByProduct(Product product) {
+    public void removeCartItemByProduct(Long productId) {
         boolean removed = cartItems.removeIf(item ->
-                item.getProduct() != null && item.getProduct().getId().equals(product.getId()));
+                item.getProduct() != null && item.getProduct().getId().equals(productId));
         if (removed) {
             calculateTotalPrice();
         }

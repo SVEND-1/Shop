@@ -1,6 +1,7 @@
 package org.example.myshop.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.example.myshop.entity.Order;
 import org.example.myshop.entity.User;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,4 +57,13 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public User userAddOrder(User user, Order order) {
+        user.addOrderItem(order);
+        return userRepository.save(user);
+    }
+
+    public User userRemoveOrder(User user, Order order) {
+        user.removeOrderItem(order);
+        return userRepository.save(user);
+    }
 }

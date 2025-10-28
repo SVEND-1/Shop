@@ -1,14 +1,15 @@
 package org.example.myshop.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.example.myshop.entity.Cart;
-import org.example.myshop.entity.Order;
-import org.example.myshop.entity.User;
+import org.example.myshop.entity.*;
 import org.example.myshop.repository.OrderRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -16,10 +17,155 @@ import java.util.NoSuchElementException;
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
+    private final UserService userService;
+    private final CartService cartService;
+    private final ProductService productService;
+    private final OrderItemService orderItemService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, UserService userService,
+                        CartService cartService, ProductService productService,OrderItemService orderItemService) {
         this.orderRepository = orderRepository;
+        this.userService = userService;
+        this.cartService = cartService;
+        this.productService = productService;
+        this.orderItemService = orderItemService;
+    }
+
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderRepository.findOrderByUserId(userId);
+    }
+
+    public Order createOrderFromCart(Long userId) {
+        // 1. Получаем пользователя и проверяем его существование
+        User user = userService.getById(userId);
+        System.out.println("🔄 Создание заказа для пользователя: " + user.getName());
+
+        // 2. Получаем корзину пользователя с товарами
+        Cart cart = cartService.getCartByUserId(userId);
+        if (cart == null) {
+            throw new RuntimeException("Корзина не найдена для пользователя с ID: " + userId);
+        }
+
+        // 3. Проверяем, что корзина не пуста
+        if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+            throw new RuntimeException("Корзина пуста, невозможно создать заказ");
+        }
+
+        // 4. Проверяем доступность товаров и их количество
+        validateCartItems(cart);
+
+        // 5. Создаем новый заказ
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus(Order.OrderStatus.PENDING);
+
+        // 6. Рассчитываем общую сумму заказа
+        BigDecimal totalAmount = calculateTotalAmount(cart);
+        order.setTotalAmount(totalAmount);
+
+        // 7. Сохраняем заказ в базу
+        Order savedOrder = orderRepository.save(order);
+        System.out.println("✅ Заказ создан с ID: " + savedOrder.getId());
+
+        // 8. Создаем элементы заказа из корзины
+        List<OrderItem> orderItems = createOrderItemsFromCart(cart, savedOrder);
+        savedOrder.setOrderItems(orderItems);
+
+
+        // 10. Очищаем корзину
+        cartService.clearCartByUserId(userId);
+        System.out.println("🗑️ Корзина очищена");
+
+        // 11. Обновляем заказ с итоговой информацией
+        Order finalOrder = orderRepository.save(savedOrder);
+
+        System.out.println("🎉 Заказ успешно создан!");
+        System.out.println("   Номер заказа: " + finalOrder.getId());
+        System.out.println("   Товаров: " + finalOrder.getOrderItems().size());
+        System.out.println("   Общая сумма: $" + finalOrder.getTotalAmount());
+
+        return finalOrder;
+    }
+
+    /**
+     * Проверка доступности товаров в корзине
+     */
+    private void validateCartItems(Cart cart) {
+        System.out.println("🔍 Проверка доступности товаров...");
+
+        for (CartItem cartItem : cart.getCartItems()) {
+            Product product = cartItem.getProduct();
+            if (product == null) {
+                throw new RuntimeException("Товар не найден в корзине");
+            }
+
+            // Получаем актуальные данные о товаре из базы
+            Product actualProduct = productService.getById(product.getId());
+            if(actualProduct == null) {
+                new RuntimeException("Товар не найден: " + product.getName());
+            }
+
+            if (actualProduct.getCount() < cartItem.getQuantity()) {
+                throw new RuntimeException("Недостаточно товара на складе: " + actualProduct.getName() +
+                        ". Доступно: " + actualProduct.getCount() +
+                        ", запрошено: " + cartItem.getQuantity());
+            }
+
+            System.out.println("   ✅ " + actualProduct.getName() + " - " +
+                    cartItem.getQuantity() + " шт. (доступно: " + actualProduct.getCount() + ")");
+        }
+    }
+
+    /**
+     * Расчет общей суммы заказа
+     */
+    private BigDecimal calculateTotalAmount(Cart cart) {
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (CartItem cartItem : cart.getCartItems()) {
+            BigDecimal itemPrice = BigDecimal.valueOf(cartItem.getProduct().getPrice());
+            BigDecimal itemTotal = itemPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            total = total.add(itemTotal);
+
+            System.out.println("   💰 " + cartItem.getProduct().getName() + " - " +
+                    cartItem.getQuantity() + " × $" + itemPrice + " = $" + itemTotal);
+        }
+
+        System.out.println("   📊 Общая сумма заказа: $" + total);
+        return total;
+    }
+
+    /**
+     * Создание элементов заказа из корзины
+     */
+    private List<OrderItem> createOrderItemsFromCart(Cart cart, Order order) {
+        System.out.println("📝 Создание элементов заказа...");
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (CartItem cartItem : cart.getCartItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(cartItem.getProduct());
+            orderItem.setQuantity(cartItem.getQuantity());
+
+            // Устанавливаем цену на момент заказа
+            BigDecimal itemPrice = BigDecimal.valueOf(cartItem.getProduct().getPrice());
+            orderItem.setPrice(itemPrice);
+
+            // Рассчитываем общую стоимость позиции
+            orderItem.setPrice(itemPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+
+            orderItems.add(orderItem);
+            System.out.println("   ✅ " + cartItem.getProduct().getName() + " - " +
+                    cartItem.getQuantity() + " шт.");
+        }
+
+        // Сохраняем все элементы заказа
+        List<OrderItem> savedItems = orderItemService.saveAll(orderItems);
+        System.out.println("   💾 Сохранено элементов заказа: " + savedItems.size());
+
+        return savedItems;
     }
 
     public List<Order> findAllByUserId(Long userId) {
