@@ -14,20 +14,15 @@
             <p>Создайте свой аккаунт</p>
         </div>
 
-        <form class="auth-form" id="registerForm">
+        <form action="/register" method="post" class="auth-form" id="registerForm">
             <div class="form-group">
-                <label for="fullName">ФИО</label>
-                <input type="text" id="fullName" name="fullName" required placeholder="Иванов Иван Иванович">
+                <label for="name">ФИО</label>
+                <input type="text" id="name" name="name" required placeholder="Иванов Иван Иванович">
             </div>
 
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required placeholder="example@mail.ru">
-            </div>
-
-            <div class="form-group">
-                <label for="phone">Телефон</label>
-                <input type="tel" id="phone" name="phone" required placeholder="+7 (999) 999-99-99">
             </div>
 
             <div class="form-group">

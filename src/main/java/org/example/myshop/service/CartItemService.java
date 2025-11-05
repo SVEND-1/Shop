@@ -1,6 +1,6 @@
 package org.example.myshop.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 import org.example.myshop.entity.Cart;
 import org.example.myshop.entity.CartItem;
 import org.example.myshop.entity.Product;
@@ -11,6 +11,7 @@ import org.example.myshop.repository.ProductRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 
 @Service
+@Transactional
 public class CartItemService {
 
     private final CartItemRepository cartItemRepository;

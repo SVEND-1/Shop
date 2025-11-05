@@ -1,30 +1,33 @@
 package org.example.myshop.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 import org.example.myshop.entity.Product;
 import org.example.myshop.entity.User;
 import org.example.myshop.repository.ProductRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final UserService userService;
 
     @Autowired
-    public ProductService(ProductRepository productRepository,UserService userService) {
+    public ProductService(ProductRepository productRepository,@Lazy UserService userService) {
         this.productRepository = productRepository;
         this.userService = userService;
     }
 
     public Product getById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
+        return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
     }
 
     public List<Product> findAll() {
@@ -42,7 +45,7 @@ public class ProductService {
     }
 
     public Product update(Long id, Product productToUpdate) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
         Product updatedProduct = new Product(
                 product.getId(),
                 productToUpdate.getName(),
@@ -58,7 +61,7 @@ public class ProductService {
 
     public void deleted(Long id) {
         if(!productRepository.existsById(id)){
-            throw new NoSuchElementException("не найден");
+            throw new NoSuchElementException("Продукт не найден");
         }
         productRepository.deleteById(id);
     }

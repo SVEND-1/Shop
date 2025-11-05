@@ -1,9 +1,11 @@
 package org.example.myshop.entity;
 
-import jakarta.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,10 +33,10 @@ public class User {
     @Column(name = "address")
     private String address;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
 
     public User(Long id, String email, String name, String password, Role role, String address, List<Order> orders, Cart cart) {
@@ -133,6 +135,10 @@ public class User {
     }
 
     public enum Role {
-        USER, ADMIN
+        USER, ADMIN;
+
+        public SimpleGrantedAuthority toAuthority() {
+            return new SimpleGrantedAuthority("ROLE_" + this.name());
+        }
     }
 }

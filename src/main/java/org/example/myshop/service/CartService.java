@@ -1,16 +1,17 @@
 package org.example.myshop.service;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import javax.persistence.EntityNotFoundException;
 import org.example.myshop.entity.Cart;
 import org.example.myshop.entity.CartItem;
 import org.example.myshop.entity.Product;
 import org.example.myshop.entity.User;
 import org.example.myshop.repository.CartRepository;
+import org.example.myshop.repository.ProductRepository;
 import org.example.myshop.repository.UserRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,10 +21,12 @@ import java.util.NoSuchElementException;
 public class CartService {
 
     private final CartRepository cartRepository;
+    private final ProductService productService;
 
     @Autowired
-    public CartService(CartRepository cartRepository) {
+    public CartService(CartRepository cartRepository, ProductService productService) {
         this.cartRepository = cartRepository;
+        this.productService = productService;
     }
 
 //    public Cart getCartByUserId(Long userId)  {
@@ -52,7 +55,7 @@ public class CartService {
     }
 
     public Cart update(Long id,Cart cartToUpdate) {
-        Cart cart = cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
+        Cart cart = cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Корзина не найдена"));
         Cart updatedCart = new Cart(
                 cart.getId(),
                 cartToUpdate.getUser(),
@@ -63,7 +66,7 @@ public class CartService {
 
     public void deleted(Long id) {
         if(!cartRepository.existsById(id)){
-            throw new NoSuchElementException("не найден");
+            throw new NoSuchElementException("Корзина не найдена");
         }
         cartRepository.deleteById(id);
     }
@@ -79,10 +82,13 @@ public class CartService {
         cart.addCartItem(product,quantity);
         return cartRepository.save(cart);
     }
-    public Cart cartAddProduct(Cart cart, Product product) {
-        cart.addCartItem(product,1);
+    public Cart cartAddProduct(Long cartId, Long productId,int quantity) {
+        Cart cart = getById(cartId);
+        cart.addCartItem(productService.getById(productId),quantity);
         return cartRepository.save(cart);
     }
+
+
 
     public void cartRemoveProduct(Long userId, Long productId) {
         // Получаем корзину с загруженными элементами

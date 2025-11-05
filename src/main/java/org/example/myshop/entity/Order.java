@@ -1,17 +1,16 @@
 package org.example.myshop.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
-public class Order {//TODO добавить дату заказа и адрес
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +24,12 @@ public class Order {//TODO добавить дату заказа и адрес
     @Column(name = "status")
     private OrderStatus status = OrderStatus.PENDING;
 
+    @Column(name = "order_date", nullable = false)
+    private LocalDateTime orderDate;
+
+    @Column(name = "shipping_address", length = 500)
+    private String shippingAddress;
+
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
@@ -32,12 +37,15 @@ public class Order {//TODO добавить дату заказа и адрес
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public Order() {
+        this.orderDate = LocalDateTime.now();
     }
 
     public Order(Long id, User user, OrderStatus status, BigDecimal totalAmount, List<OrderItem> orderItems) {
         this.id = id;
         this.user = user;
         this.status = status;
+        this.orderDate = LocalDateTime.now();
+        this.shippingAddress = user.getAddress();
         this.totalAmount = totalAmount;
         this.orderItems = orderItems;
     }
@@ -66,6 +74,22 @@ public class Order {//TODO добавить дату заказа и адрес
         this.status = status;
     }
 
+    public LocalDateTime getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(String shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
@@ -89,7 +113,10 @@ public class Order {//TODO добавить дату заказа и адрес
     }
 
     public enum OrderStatus {
-        PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED
+        PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED;
+        public SimpleGrantedAuthority toAuthority() {
+            return new SimpleGrantedAuthority("ROLE_" + this.name());
+        }
     }
 }
 

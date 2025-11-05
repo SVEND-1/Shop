@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль - MyShop</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 <header class="header">
@@ -15,17 +15,13 @@
     <div class="profile-content">
         <div class="profile-sidebar">
             <div class="user-info">
-                <img src="../images/avatar.jpg" alt="Аватар" class="avatar">
-                <h3>Иван Иванов</h3>
-                <p>ivan@mail.ru</p>
+                <h3 th:text="${user.name}">Иван Иванов</h3>
+                <p th:text="${user.email}">ivan@mail.ru</p>
             </div>
 
             <nav class="profile-nav">
                 <a href="#personal" class="nav-link active">Личные данные</a>
                 <a href="#orders" class="nav-link">Мои заказы</a>
-                <a href="#addresses" class="nav-link">Адреса доставки</a>
-                <a href="#favorites" class="nav-link">Избранное</a>
-                <a href="#security" class="nav-link">Безопасность</a>
             </nav>
         </div>
 
@@ -33,34 +29,52 @@
             <!-- Личные данные -->
             <div id="personal" class="profile-section">
                 <h2>Личные данные</h2>
-                <form class="profile-form">
-                    <div class="form-group">
-                        <label>ФИО</label>
-                        <input type="text" value="Иван Иванов">
+                <div class="profile-info">
+                    <div class="info-group">
+                        <label>ФИО:</label>
+                        <span th:text="${user.name}">Иван Иванов</span>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" value="ivan@mail.ru">
+                    <div class="info-group">
+                        <label>Email:</label>
+                        <span th:text="${user.email}">ivan@mail.ru</span>
                     </div>
-                    <div class="form-group">
-                        <label>Телефон</label>
-                        <input type="tel" value="+7 (999) 999-99-99">
+                    <div class="info-group" th:if="${user.address != null and !user.address.isEmpty()}">
+                        <label>Адрес:</label>
+                        <span th:text="${user.address}">г. Москва, ул. Примерная, д. 123</span>
                     </div>
-                    <button type="submit" class="btn-primary">Сохранить изменения</button>
-                </form>
+                    <div class="info-group" th:unless="${user.address != null and !user.address.isEmpty()}">
+                        <label>Адрес:</label>
+                        <span class="text-muted">Не указан</span>
+                    </div>
+                    <div class="info-group">
+                        <label>Роль:</label>
+                        <span th:text="${user.role == 'ADMIN' ? 'Администратор' : 'Пользователь'}">Пользователь</span>
+                    </div>
+                </div>
             </div>
 
             <!-- История заказов -->
             <div id="orders" class="profile-section" style="display:none">
                 <h2>История заказов</h2>
-                <div class="orders-list">
-                    <!-- Заказы будут здесь -->
+                <div class="orders-list" th:if="${!orders.empty}">
+                    <div th:each="order : ${orders}" class="order-item">
+                        <div class="order-header">
+                            <span>Заказ #<span th:text="${order.id}"></span></span>
+                            <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">01.01.2024 12:00</span>
+                        </div>
+                        <div class="order-status" th:text="${order.status.description}">В обработке</div>
+                        <div class="order-total" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">$100.00</div>
+                    </div>
+                </div>
+                <div class="empty-state" th:if="${orders.empty}">
+                    <p>У вас пока нет заказов</p>
+                    <a href="/products" class="btn-primary">Перейти к покупкам</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="../js/profile.js"></script>
+<script src="/js/profile.js"></script>
 </body>
 </html>

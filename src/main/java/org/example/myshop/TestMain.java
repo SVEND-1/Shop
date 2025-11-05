@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Scanner;
 
 @Component
-public class TestMain implements CommandLineRunner {
+public class TestMain {
     private User user;
     private Cart cart;
     private Product product;
@@ -64,7 +64,7 @@ public class TestMain implements CommandLineRunner {
         }
     }
 
-    @Override
+
     public void run(String... args) throws Exception {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;

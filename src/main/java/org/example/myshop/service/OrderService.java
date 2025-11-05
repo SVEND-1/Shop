@@ -1,11 +1,13 @@
 package org.example.myshop.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 import org.example.myshop.entity.*;
 import org.example.myshop.repository.OrderRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@Transactional
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
@@ -23,13 +26,19 @@ public class OrderService {
     private final OrderItemService orderItemService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, UserService userService,
+    public OrderService(OrderRepository orderRepository,@Lazy UserService userService,
                         CartService cartService, ProductService productService,OrderItemService orderItemService) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.cartService = cartService;
         this.productService = productService;
         this.orderItemService = orderItemService;
+    }
+
+
+
+    public Order getById(Long id) {
+        return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
     }
 
     public List<Order> getOrdersByUserId(Long userId) {
@@ -183,7 +192,7 @@ public class OrderService {
     }
 
     public Order findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
+        return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Заказ не найден"));
     }
 
     public Order save(Order order) {
@@ -191,7 +200,7 @@ public class OrderService {
     }
 
     public Order update(Long id, Order orderToUpdate) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
+        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Заказ не найден"));
         Order updatedOrder = new Order(
                 order.getId(),
                 orderToUpdate.getUser(),
@@ -203,12 +212,17 @@ public class OrderService {
 
     public void deleted(Long id) {
         if(!orderRepository.existsById(id)){
-            throw new NoSuchElementException("не найден");
+            throw new NoSuchElementException("Заказ не найден");
         }
         orderRepository.deleteById(id);
     }
 
     public Order updateStatus(Order order, Order.OrderStatus status) {
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+    public Order updateStatus(Long orderId, Order.OrderStatus status) {
+        Order order = getById(orderId);
         order.setStatus(status);
         return orderRepository.save(order);
     }

@@ -1,6 +1,6 @@
 package org.example.myshop.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 import org.example.myshop.entity.*;
 import org.example.myshop.repository.OrderItemRepository;
 import org.example.myshop.repository.OrderRepository;
@@ -8,6 +8,7 @@ import org.example.myshop.repository.ProductRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 
 @Service
+@Transactional
 public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
@@ -88,7 +90,7 @@ public class OrderItemService {
 
     public void removeItemFromOrder(Long orderItemId) {
         if (!orderItemRepository.existsById(orderItemId)) {
-            throw new EntityNotFoundException("Ordertem не найден");
+            throw new EntityNotFoundException("OrderItem не найден");
         }
 
         orderItemRepository.deleteById(orderItemId);
@@ -96,11 +98,11 @@ public class OrderItemService {
 
     public void removeItemFromCart(Long cartId, Long productId) {
         if (!orderRepository.existsById(cartId)) {
-            throw new EntityNotFoundException("Заказ не найдена");
+            throw new EntityNotFoundException("Заказ не найден");
         }
 
         if (!productRepository.existsById(productId)) {
-            throw new EntityNotFoundException("Продукт не найден");
+            throw new EntityNotFoundException("продукт не найден");
         }
 
         orderItemRepository.deleteByOrderIdAndProductId(cartId, productId);
