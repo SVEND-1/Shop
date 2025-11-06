@@ -1,6 +1,7 @@
 package org.example.myshop.controller;
 
 import org.example.myshop.entity.User;
+import org.example.myshop.entity.dto.UserDTO;
 import org.example.myshop.service.UserService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,9 +32,17 @@ public class UserController {
 
     @GetMapping("/profile")
     public String profilePage(Model model) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.getByEmail(username);
-        model.addAttribute("user", user);
-        return "static/html/profile.html";
+        User user = userService.getCurrentUser();
+        UserDTO userDTO = user.UserToUserDTO(user);
+        model.addAttribute("user", userDTO);
+        return "profile";
+    }
+
+    @PostMapping("/profile")
+    public String profilePost(@RequestParam("address") String address) {
+        User user = userService.getCurrentUser();
+        user.setAddress(address);
+        userService.update(user.getId(), user);
+        return "redirect:/user/profile";
     }
 }

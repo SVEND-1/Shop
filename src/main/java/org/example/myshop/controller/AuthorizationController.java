@@ -20,11 +20,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 public class AuthorizationController {
@@ -40,8 +42,8 @@ public class AuthorizationController {
     }
 
     @GetMapping(value = "/login")
-    public String loginPage()  {
-        return "static/html/login.html";
+    public String loginPage() throws IOException {
+        return readHtmlFile("templates/login.html");
     }
 
     @PostMapping("/register")
@@ -71,7 +73,42 @@ public class AuthorizationController {
 
     @GetMapping(value = "/register", produces = MediaType.TEXT_HTML_VALUE)
     public String registerPage() throws IOException {
-        return readHtmlFile("static/html/register.html");
+        return readHtmlFile("templates/register.html");
+    }
+
+    @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
+    public String forgotPasswordPage() throws IOException {
+        return readHtmlFile("templates/forgot-password.html");
+    }
+
+    @GetMapping(value = "/reset-password", produces = MediaType.TEXT_HTML_VALUE)
+    public String resetPasswordPage() throws IOException {
+        return readHtmlFile("templates/reset-password.html");
+    }
+
+    @PostMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<Object> forgotPasswordUser(@RequestParam(name = "email") String email, HttpSession session) {
+        User user = userService.getByEmail(email);
+        if (user != null) {
+            session.setAttribute("email", email);
+        }
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/login"))
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Object> resetPasswordUser(@RequestParam(name = "newPassword") String newPassword,
+                                               @RequestParam(name = "confirmPassword")String confirmPassword,
+                                                    HttpSession session) {
+        String email = session.getAttribute("email").toString();
+        User user = userService.getByEmail(email);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userService.update(user.getId(), user);
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/login"))
+                .build();
     }
 
     private String readHtmlFile(String path) throws IOException {

@@ -6,6 +6,7 @@ import org.example.myshop.repository.OrderRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,14 @@ public class UserService {
         this.orderService = orderService;
     }
 
+    public User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();//Вернет логин
+        User user =  userRepository.findByEmailEqualsIgnoreCase(email);
+        if(user == null) {
+            throw new IllegalArgumentException("Не найден пользователь");
+        }
+        return user;
+    }
 
     public User getById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));

@@ -15,19 +15,19 @@ import java.util.Map;
 public class Test {
 
 
-    @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
-    public String forgotPasswordPage() throws IOException {
-        return readHtmlFile("static/html/forgot-password.html");
-    }
+//    @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
+//    public String forgotPasswordPage() throws IOException {
+//        return readHtmlFile("templates/forgot-password.html");
+//    }
 
-    @GetMapping(value = "/reset-password", produces = MediaType.TEXT_HTML_VALUE)
-    public String resetPasswordPage() throws IOException {
-        return readHtmlFile("static/html/reset-password.html");
-    }
+//    @GetMapping(value = "/reset-password", produces = MediaType.TEXT_HTML_VALUE)
+//    public String resetPasswordPage() throws IOException {
+//        return readHtmlFile("templates/reset-password.html");
+//    }
 
     @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
     public String homePage() throws IOException {
-        return readHtmlFile("static/html/index.html");
+        return readHtmlFile("templates/index.html");
     }
 
     @GetMapping(value = "/products", produces = MediaType.TEXT_HTML_VALUE)
@@ -37,22 +37,18 @@ public class Test {
 
     @GetMapping(value = "/product/{id}", produces = MediaType.TEXT_HTML_VALUE)
     public String productDetailPage(@PathVariable String id) throws IOException {
-        return readHtmlFile("static/html/product-detail.html");
+        return readHtmlFile("templates/product-detail.html");
     }
 
     @GetMapping(value = "/cart", produces = MediaType.TEXT_HTML_VALUE)
     public String cartPage() throws IOException {
-        return readHtmlFile("static/html/cart.html");
+        return readHtmlFile("templates/cart.html");
     }
 
-    @GetMapping(value = "/profile", produces = MediaType.TEXT_HTML_VALUE)
-    public String profilePage() throws IOException {
-        return readHtmlFile("static/html/profile.html");
-    }
 
     @GetMapping(value = "/checkout", produces = MediaType.TEXT_HTML_VALUE)
     public String checkoutPage() throws IOException {
-        return readHtmlFile("static/html/checkout.html");
+        return readHtmlFile("templates/checkout.html");
     }
 
 

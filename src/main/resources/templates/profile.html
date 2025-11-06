@@ -46,35 +46,11 @@
                         <label>Адрес:</label>
                         <span class="text-muted">Не указан</span>
                     </div>
-                    <div class="info-group">
-                        <label>Роль:</label>
-                        <span th:text="${user.role == 'ADMIN' ? 'Администратор' : 'Пользователь'}">Пользователь</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- История заказов -->
-            <div id="orders" class="profile-section" style="display:none">
-                <h2>История заказов</h2>
-                <div class="orders-list" th:if="${!orders.empty}">
-                    <div th:each="order : ${orders}" class="order-item">
-                        <div class="order-header">
-                            <span>Заказ #<span th:text="${order.id}"></span></span>
-                            <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">01.01.2024 12:00</span>
-                        </div>
-                        <div class="order-status" th:text="${order.status.description}">В обработке</div>
-                        <div class="order-total" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 1, 2)}">$100.00</div>
-                    </div>
-                </div>
-                <div class="empty-state" th:if="${orders.empty}">
-                    <p>У вас пока нет заказов</p>
-                    <a href="/products" class="btn-primary">Перейти к покупкам</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="/js/profile.js"></script>
 </body>
 </html>

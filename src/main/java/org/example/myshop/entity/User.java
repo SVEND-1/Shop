@@ -3,6 +3,7 @@ package org.example.myshop.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.myshop.entity.dto.UserDTO;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
@@ -132,6 +133,10 @@ public class User {
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public UserDTO UserToUserDTO(User user) {
+        return new UserDTO(user.getEmail(), user.getName(), user.getAddress());
     }
 
     public enum Role {

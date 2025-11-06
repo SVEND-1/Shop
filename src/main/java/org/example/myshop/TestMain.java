@@ -55,7 +55,7 @@ public class TestMain {
                 product.setCategory(Product.Category.OTHER);
 
                 // Сохраняем продукт
-                product = productService.create(product,user.getId()); // Нужен пользователь с правами админа
+                product = productService.create(product); // Нужен пользователь с правами админа
             } else {
                 product = existingProducts.get(0);
             }
@@ -118,7 +118,7 @@ public class TestMain {
         newProduct.setCount(100);
         newProduct.setPrice(100.0);
 
-        productService.create(newProduct,user.getId());
+        productService.create(newProduct);
     }
 
     private void createUserAndCart() {

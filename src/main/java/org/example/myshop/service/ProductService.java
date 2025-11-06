@@ -34,13 +34,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product create(Product productToCreate,Long userId) {
-        if(userService.getById(userId) == null) {
-            throw new NoSuchElementException("Пользователь с таким id не найден");
-        }
-        else if(userService.getById(userId).getRole() == User.Role.USER) {
-            throw new RuntimeException("У пользователя не достаточно прав");
-        }
+    public Product create(Product productToCreate) {
         return productRepository.save(productToCreate);
     }
 

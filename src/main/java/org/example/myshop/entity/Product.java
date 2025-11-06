@@ -55,6 +55,15 @@ public class Product {
         this.cartItems = cartItems;
     }
 
+    public Product(String name, Double price, int count, String description, String image, Category category) {
+        this.name = name;
+        this.price = price;
+        this.count = count;
+        this.description = description;
+        this.image = image;
+        this.category = category;
+    }
+
     public Product() {
 
     }
@@ -132,7 +141,19 @@ public class Product {
     }
 
     public enum Category {
-        ELECTRONICS, CLOTHING, BOOKS, FOOD, SPORTS, HOME, BEAUTY, OTHER;
+        ELECTRONICS("Электроника"), CLOTHING("Одежда"), BOOKS("Книги"), FOOD("Еда"),
+        SPORTS("Спорт товары"), HOME("Товары для дома"), BEAUTY("Красота"), OTHER("Другое");
+
+        private final String displayName;
+
+        Category(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
         public SimpleGrantedAuthority toAuthority() {
             return new SimpleGrantedAuthority("ROLE_" + this.name());
         }
