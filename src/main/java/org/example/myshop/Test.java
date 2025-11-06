@@ -25,7 +25,6 @@ public class Test {
         return readHtmlFile("static/html/reset-password.html");
     }
 
-    // Главные страницы магазина
     @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
     public String homePage() throws IOException {
         return readHtmlFile("static/html/index.html");
@@ -56,58 +55,6 @@ public class Test {
         return readHtmlFile("static/html/checkout.html");
     }
 
-    // API endpoints для аутентификации
-//    @PostMapping("/api/auth/login")
-//    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
-//        Map<String, Object> response = new HashMap<>();
-//
-//        if (request.email == null || request.email.isEmpty()) {
-//            response.put("success", false);
-//            response.put("message", "Email обязателен");
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//
-//        if (request.password == null || request.password.isEmpty()) {
-//            response.put("success", false);
-//            response.put("message", "Пароль обязателен");
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//
-//        response.put("success", true);
-//        response.put("message", "Вход выполнен успешно");
-//        response.put("token", "jwt-token-" + System.currentTimeMillis());
-//        response.put("user", createUserData());
-//        return ResponseEntity.ok(response);
-//    }
-
-//    @PostMapping("/api/auth/register")
-//    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
-//        Map<String, Object> response = new HashMap<>();
-//
-//        if (request.password.length() < 6) {
-//            response.put("success", false);
-//            response.put("message", "Пароль должен содержать минимум 6 символов");
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//
-//        if (!request.password.equals(request.confirmPassword)) {
-//            response.put("success", false);
-//            response.put("message", "Пароли не совпадают");
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//
-//        if (!request.agree) {
-//            response.put("success", false);
-//            response.put("message", "Необходимо согласие с правилами");
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//
-//        response.put("success", true);
-//        response.put("message", "Регистрация успешна");
-//        response.put("userId", "user-" + System.currentTimeMillis());
-//        response.put("user", createUserData());
-//        return ResponseEntity.ok(response);
-//    }
 
     @PostMapping("/api/auth/forgot-password")
     public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
@@ -267,7 +214,6 @@ public class Test {
         return item;
     }
 
-    // DTO классы
     public static class LoginRequest {
         public String email;
         public String password;
