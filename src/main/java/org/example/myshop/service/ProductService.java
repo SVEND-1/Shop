@@ -7,6 +7,9 @@ import org.example.myshop.repository.ProductRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +18,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @Transactional
-public class ProductService {
+public class ProductService {//TODO: Сортировка по цене,категории
 
     private final ProductRepository productRepository;
     private final UserService userService;
@@ -24,6 +27,11 @@ public class ProductService {
     public ProductService(ProductRepository productRepository,@Lazy UserService userService) {
         this.productRepository = productRepository;
         this.userService = userService;
+    }
+
+    public Page<Product> findProductsWithPagination(int offset, int limit) {
+        Page<Product> products = productRepository.findAll(PageRequest.of(offset,limit));//Можно добавить сортировку
+        return products;
     }
 
     public Product getById(Long id) {

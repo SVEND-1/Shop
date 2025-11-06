@@ -76,6 +76,7 @@ public class AuthorizationController {
         return readHtmlFile("templates/register.html");
     }
 
+
     @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
     public String forgotPasswordPage() throws IOException {
         return readHtmlFile("templates/forgot-password.html");

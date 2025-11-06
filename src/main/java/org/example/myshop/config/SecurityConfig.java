@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/", "/login", "/register", "/error"
                                 ,"forgot-password","/products","/product**"
-                                , "/css/**", "/static/html").permitAll()// всем пользователем даже без регистрации к этим url
+                                ).permitAll()// всем пользователем даже без регистрации к этим url
                 .antMatchers("/cart","/profile","/checkout","/user/**").hasAnyRole(User.Role.USER.name(), User.Role.ADMIN.name())//Всем пользователя
                 .antMatchers("/admin/**").hasRole(User.Role.ADMIN.name())
                 .and().formLogin().loginPage("/login").permitAll().usernameParameter("email").defaultSuccessUrl("/")

@@ -1,5 +1,7 @@
 package org.example.myshop;
 
+import org.example.myshop.service.EmailSenderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +16,10 @@ import java.util.Map;
 @RestController
 public class Test {
 
+//    private final EmailSenderService emailSenderService;
+//      emailSenderService.send("ivankulanov4@gmail.com","Все норм","Тест письма");
 
-//    @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
+    //    @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
 //    public String forgotPasswordPage() throws IOException {
 //        return readHtmlFile("templates/forgot-password.html");
 //    }
