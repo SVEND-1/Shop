@@ -16,19 +16,6 @@ import java.util.Map;
 @RestController
 public class Test {
 
-//    private final EmailSenderService emailSenderService;
-//      emailSenderService.send("ivankulanov4@gmail.com","Все норм","Тест письма");
-
-    //    @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
-//    public String forgotPasswordPage() throws IOException {
-//        return readHtmlFile("templates/forgot-password.html");
-//    }
-
-//    @GetMapping(value = "/reset-password", produces = MediaType.TEXT_HTML_VALUE)
-//    public String resetPasswordPage() throws IOException {
-//        return readHtmlFile("templates/reset-password.html");
-//    }
-
     @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
     public String homePage() throws IOException {
         return readHtmlFile("templates/index.html");

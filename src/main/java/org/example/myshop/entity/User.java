@@ -12,7 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User {//TODO ДОБАВИТЬ КУРЬЕРА И АДМИНА ,А ВМЕСТО АДМИНА КОТОРЫЙ СЕЙЧАС ДОБАВИТЬ ПРОДОВЦА
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

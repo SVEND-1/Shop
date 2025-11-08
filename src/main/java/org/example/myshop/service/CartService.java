@@ -4,16 +4,12 @@ import javax.persistence.EntityNotFoundException;
 import org.example.myshop.entity.Cart;
 import org.example.myshop.entity.CartItem;
 import org.example.myshop.entity.Product;
-import org.example.myshop.entity.User;
 import org.example.myshop.repository.CartRepository;
-import org.example.myshop.repository.ProductRepository;
-import org.example.myshop.repository.UserRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service

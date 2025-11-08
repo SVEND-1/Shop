@@ -3,6 +3,7 @@ package org.example.myshop.controller;
 import org.example.myshop.entity.Cart;
 import org.example.myshop.entity.User;
 import org.example.myshop.service.CartService;
+import org.example.myshop.service.EmailSenderService;
 import org.example.myshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -33,12 +35,15 @@ public class AuthorizationController {
     private final UserService userService;
     private final CartService cartService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailSenderService emailSenderService;
 
     @Autowired
-    public AuthorizationController(UserService userService, CartService cartService, PasswordEncoder passwordEncoder) {
+    public AuthorizationController(UserService userService, CartService cartService,
+                                   PasswordEncoder passwordEncoder, EmailSenderService emailSenderService) {
         this.userService = userService;
         this.cartService = cartService;
         this.passwordEncoder = passwordEncoder;
+        this.emailSenderService = emailSenderService;
     }
 
     @GetMapping(value = "/login")
@@ -46,30 +51,6 @@ public class AuthorizationController {
         return readHtmlFile("templates/login.html");
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@RequestParam(name = "name") String name,
-                                               @RequestParam(name = "email")String email,
-                                               @RequestParam(name = "password")String password) {
-        String encodePassword = passwordEncoder.encode(password);
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(encodePassword);
-        user.setRole(User.Role.USER);
-
-        User savedUser = userService.create(user);
-        user = savedUser;
-
-        Cart cart = new Cart();
-        cart.setUser(user);
-
-        cartService.create(cart);
-
-        forceAutoLogin(email,password);
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("/"))
-                .build();
-    }
 
     @GetMapping(value = "/register", produces = MediaType.TEXT_HTML_VALUE)
     public String registerPage() throws IOException {
@@ -86,6 +67,52 @@ public class AuthorizationController {
     public String resetPasswordPage() throws IOException {
         return readHtmlFile("templates/reset-password.html");
     }
+
+    @GetMapping(value = "/email", produces = MediaType.TEXT_HTML_VALUE)
+    public String emailVerificationPage() throws IOException {
+        // emailSenderService.sendVerification("ivankulanov4@gmail.com");
+        return readHtmlFile("templates/email-verification.html");
+    }
+
+
+    @PostMapping("/register")
+    public ResponseEntity<Object> registerUser(@RequestParam(name = "name") String name,
+                                               @RequestParam(name = "email")String email,
+                                               @RequestParam(name = "password")String password,
+                                               RedirectAttributes redirectAttributes) {
+        String encodePassword = passwordEncoder.encode(password);
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(encodePassword);
+        user.setRole(User.Role.USER);
+
+        User savedUser = userService.create(user);
+        user = savedUser;
+
+        Cart cart = new Cart();
+        cart.setUser(user);
+
+        cartService.create(cart);
+
+        redirectAttributes.addAttribute("name", name);
+        redirectAttributes.addAttribute("email", email);
+        redirectAttributes.addFlashAttribute("password", password);
+
+        forceAutoLogin(email,password);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/"))
+                .build();
+    }
+
+    @PostMapping(value = "/email")
+    public String emailVerificationPost(@RequestParam String name,//TODO передаётся через redirectAttributes перенести регистрацию сюда только после того как пользователь ввел код
+                                        @RequestParam String email,
+                                        @RequestParam String password) {
+
+        return "redirect:/";
+    }
+
 
     @PostMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<Object> forgotPasswordUser(@RequestParam(name = "email") String email, HttpSession session) {

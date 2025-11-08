@@ -35,8 +35,8 @@ public class SecurityConfig {
                 .disable()//Отключить защиту от кибер атак
                 .authorizeRequests()
                 .antMatchers("/", "/login", "/register", "/error"
-                                ,"forgot-password","/products","/product**"
-                                ).permitAll()// всем пользователем даже без регистрации к этим url
+                                ,"forgot-password","/products","/product**",
+                                "email").permitAll()// всем пользователем даже без регистрации к этим url
                 .antMatchers("/cart","/profile","/checkout","/user/**").hasAnyRole(User.Role.USER.name(), User.Role.ADMIN.name())//Всем пользователя
                 .antMatchers("/admin/**").hasRole(User.Role.ADMIN.name())
                 .and().formLogin().loginPage("/login").permitAll().usernameParameter("email").defaultSuccessUrl("/")
