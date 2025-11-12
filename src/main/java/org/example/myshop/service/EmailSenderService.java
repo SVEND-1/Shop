@@ -28,7 +28,7 @@ public class EmailSenderService {//TODO ДОБАВИТЬ МНОГОПОТОЧН�
         javaMailSender.send(message);
     }
 
-    public void sendVerification(String to) {
+    public String sendVerification(String to) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("onlineshopkortex@gmail.com");
 
@@ -54,5 +54,6 @@ public class EmailSenderService {//TODO ДОБАВИТЬ МНОГОПОТОЧН�
         message.setText(content);
 
         javaMailSender.send(message);
+        return String.valueOf(code);
     }
 }

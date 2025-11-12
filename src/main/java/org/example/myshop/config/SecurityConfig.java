@@ -37,8 +37,8 @@ public class SecurityConfig {
                 .antMatchers("/", "/login", "/register", "/error"
                                 ,"forgot-password","/products","/product**",
                                 "email").permitAll()// всем пользователем даже без регистрации к этим url
-                .antMatchers("/cart","/profile","/checkout","/user/**").hasAnyRole(User.Role.USER.name(), User.Role.ADMIN.name())//Всем пользователя
-                .antMatchers("/admin/**").hasRole(User.Role.ADMIN.name())
+                .antMatchers("/cart","/profile","/checkout","/user/**").hasAnyRole(User.Role.USER.name(), User.Role.ADMIN.name(),User.Role.COURIER.name(),User.Role.SELLER.name())//Всем пользователя
+                .antMatchers("/seller/**").hasAnyRole(User.Role.SELLER.name(),User.Role.ADMIN.name())
                 .and().formLogin().loginPage("/login").permitAll().usernameParameter("email").defaultSuccessUrl("/")
                 .and().logout().logoutUrl("/logout").permitAll().logoutSuccessUrl("/")
                 .and().build();

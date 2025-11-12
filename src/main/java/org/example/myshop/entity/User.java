@@ -140,7 +140,7 @@ public class User {//TODO ДОБАВИТЬ КУРЬЕРА И АДМИНА ,А В
     }
 
     public enum Role {
-        USER, ADMIN;
+        USER, ADMIN, COURIER, SELLER;
 
         public SimpleGrantedAuthority toAuthority() {
             return new SimpleGrantedAuthority("ROLE_" + this.name());

@@ -6,36 +6,31 @@ import org.example.myshop.service.CartService;
 import org.example.myshop.service.EmailSenderService;
 import org.example.myshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.FileCopyUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 
-@RestController
+@Controller
 public class AuthorizationController {
     private final UserService userService;
     private final CartService cartService;
     private final PasswordEncoder passwordEncoder;
     private final EmailSenderService emailSenderService;
+
 
     @Autowired
     public AuthorizationController(UserService userService, CartService cartService,
@@ -46,103 +41,145 @@ public class AuthorizationController {
         this.emailSenderService = emailSenderService;
     }
 
-    @GetMapping(value = "/login")
-    public String loginPage() throws IOException {
-        return readHtmlFile("templates/login.html");
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
     }
 
-
-    @GetMapping(value = "/register", produces = MediaType.TEXT_HTML_VALUE)
-    public String registerPage() throws IOException {
-        return readHtmlFile("templates/register.html");
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
     }
 
-
-    @GetMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
-    public String forgotPasswordPage() throws IOException {
-        return readHtmlFile("templates/forgot-password.html");
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "forgot-password";
     }
 
-    @GetMapping(value = "/reset-password", produces = MediaType.TEXT_HTML_VALUE)
-    public String resetPasswordPage() throws IOException {
-        return readHtmlFile("templates/reset-password.html");
+    @GetMapping("/reset-password")
+    public String resetPasswordPage() {
+        return "reset-password";
     }
 
-    @GetMapping(value = "/email", produces = MediaType.TEXT_HTML_VALUE)
-    public String emailVerificationPage() throws IOException {
-        // emailSenderService.sendVerification("ivankulanov4@gmail.com");
-        return readHtmlFile("templates/email-verification.html");
+    @GetMapping("/email")
+    public String emailVerificationPage(Model model) {
+        return "email-verification";
     }
-
 
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(@RequestParam(name = "name") String name,
-                                               @RequestParam(name = "email")String email,
-                                               @RequestParam(name = "password")String password,
-                                               RedirectAttributes redirectAttributes) {
-        String encodePassword = passwordEncoder.encode(password);
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(encodePassword);
-        user.setRole(User.Role.USER);
+    public String registerUser(@RequestParam String name,
+                               @RequestParam String email,
+                               @RequestParam String password,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            String verificationCode = emailSenderService.sendVerification(email);
 
-        User savedUser = userService.create(user);
-        user = savedUser;
+            session.setAttribute("pendingName", name);
+            session.setAttribute("pendingEmail", email);
+            session.setAttribute("pendingPassword", password);
+            session.setAttribute("verificationCode", verificationCode);
 
-        Cart cart = new Cart();
-        cart.setUser(user);
-
-        cartService.create(cart);
-
-        redirectAttributes.addAttribute("name", name);
-        redirectAttributes.addAttribute("email", email);
-        redirectAttributes.addFlashAttribute("password", password);
-
-        forceAutoLogin(email,password);
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("/"))
-                .build();
+            redirectAttributes.addFlashAttribute("email", email);
+            return "redirect:/email";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка отправки кода: " + e.getMessage());
+            return "redirect:/register";
+        }
     }
 
-    @PostMapping(value = "/email")
-    public String emailVerificationPost(@RequestParam String name,//TODO передаётся через redirectAttributes перенести регистрацию сюда только после того как пользователь ввел код
-                                        @RequestParam String email,
-                                        @RequestParam String password) {
+    @PostMapping("/email")
+    public String emailVerificationPost(@RequestParam String code,
+                                        HttpSession session,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            String name = (String) session.getAttribute("pendingName");
+            String email = (String) session.getAttribute("pendingEmail");
+            String password = (String) session.getAttribute("pendingPassword");
+            String savedCode = (String) session.getAttribute("verificationCode");
 
-        return "redirect:/";
+            if (name == null || email == null || password == null || savedCode == null) {
+                redirectAttributes.addFlashAttribute("error", "Сессия истекла. Пройдите регистрацию заново.");
+                return "redirect:/register";
+            }
+
+            if (code.equals(savedCode)) {
+                String encodePassword = passwordEncoder.encode(password);
+                User user = new User();
+                user.setName(name);
+                user.setEmail(email);
+                user.setPassword(encodePassword);
+                user.setRole(User.Role.USER);
+
+                User savedUser = userService.create(user);
+
+                Cart cart = new Cart();
+                cart.setUser(savedUser);
+                cartService.create(cart);
+
+                forceAutoLogin(email, password);
+
+                session.removeAttribute("pendingName");
+                session.removeAttribute("pendingEmail");
+                session.removeAttribute("pendingPassword");
+                session.removeAttribute("verificationCode");
+                return "redirect:/";
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Неверный код подтверждения");
+                redirectAttributes.addFlashAttribute("email", email);
+                return "redirect:/email";
+            }
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при подтверждении: " + e.getMessage());
+            return "redirect:/email";
+        }
     }
 
-
-    @PostMapping(value = "/forgot-password", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<Object> forgotPasswordUser(@RequestParam(name = "email") String email, HttpSession session) {
+    @PostMapping("/forgot-password")
+    public String forgotPasswordUser(@RequestParam String email,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
         User user = userService.getByEmail(email);
         if (user != null) {
-            session.setAttribute("email", email);
+            session.setAttribute("resetEmail", email);
+            redirectAttributes.addFlashAttribute("message", "Инструкции по сбросу пароля отправлены на email");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Пользователь с таким email не найден");
         }
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("/login"))
-                .build();
+        return "redirect:/login";
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<Object> resetPasswordUser(@RequestParam(name = "newPassword") String newPassword,
-                                               @RequestParam(name = "confirmPassword")String confirmPassword,
-                                                    HttpSession session) {
-        String email = session.getAttribute("email").toString();
-        User user = userService.getByEmail(email);
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userService.update(user.getId(), user);
+    public String resetPasswordUser(@RequestParam String newPassword,
+                                    @RequestParam String confirmPassword,
+                                    HttpSession session,
+                                    RedirectAttributes redirectAttributes) {
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("/login"))
-                .build();
-    }
+        String email = (String) session.getAttribute("resetEmail");
+        if (email == null) {
+            redirectAttributes.addFlashAttribute("error", "Сессия истекла. Запросите сброс пароля снова.");
+            return "redirect:/forgot-password";
+        }
 
-    private String readHtmlFile(String path) throws IOException {
-        ClassPathResource resource = new ClassPathResource(path);
-        byte[] fileData = FileCopyUtils.copyToByteArray(resource.getInputStream());
-        return new String(fileData, StandardCharsets.UTF_8);
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Пароли не совпадают");
+            return "redirect:/reset-password";
+        }
+
+        try {
+            User user = userService.getByEmail(email);
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userService.update(user.getId(), user);
+
+            session.removeAttribute("resetEmail");
+            redirectAttributes.addFlashAttribute("message", "Пароль успешно изменен");
+            return "redirect:/login";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при сбросе пароля: " + e.getMessage());
+            return "redirect:/reset-password";
+        }
     }
 
     private void forceAutoLogin(String email, String password) {
@@ -150,5 +187,4 @@ public class AuthorizationController {
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, password, roles);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
-
 }

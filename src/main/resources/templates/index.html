@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyShop - Главная</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <!-- Header -->
@@ -12,7 +12,7 @@
     <div class="container">
         <div class="header-content">
             <div class="logo">
-                <h1>MyShop</h1>
+                <h1>Kortex</h1>
             </div>
 
             <!-- Поисковая строка -->
@@ -22,11 +22,10 @@
             </div>
 
             <nav class="nav">
-                <a href="/static" class="nav-link active">Главная</a>
-                <a href="/products" class="nav-link">Каталог</a>
+                <a href="/" class="nav-link active">Главная</a>
+                <a href="/product/catalog" class="nav-link">Каталог</a>
                 <a href="/cart" class="nav-link">Корзина (<span id="cartCount">0</span>)</a>
                 <a href="/user/profile" class="nav-link">Профиль</a>
-                <a href="/logout">Выйти</a>
                 <a href="/login" class="nav-link">Войти</a>
             </nav>
         </div>
@@ -36,7 +35,7 @@
 <!-- Hero Section -->
 <section class="hero">
     <div class="container">
-        <h2>Добро пожаловать в MyShop</h2>
+        <h2>Добро пожаловать в Kortex</h2>
         <p>Лучшие товары по лучшим ценам</p>
         <a href="/products" class="btn-primary">Смотреть каталог</a>
     </div>
@@ -47,18 +46,12 @@
     <div class="container">
         <h3>Популярные товары</h3>
         <div class="products-grid" id="featuredProducts">
-            <!-- Товары будут загружены через JavaScript -->
+
         </div>
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <p>&copy; 2024 MyShop. Все права защищены.</p>
-    </div>
-</footer>
 
-<script src="../js/main.js"></script>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

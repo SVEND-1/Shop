@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подтверждение email - MyShop</title>
+    <title>Подтверждение email - Kortex</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -23,7 +23,7 @@
             padding: 20px;
         }
 
-        .verification-container {
+        .verification-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-radius: 24px;
@@ -36,7 +36,7 @@
             overflow: hidden;
         }
 
-        .verification-container::before {
+        .verification-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -48,13 +48,10 @@
 
         .verification-icon {
             font-size: 80px;
+            color: #667eea;
             margin-bottom: 30px;
             animation: bounce 2s infinite;
         }
-
-        .success { color: #28a745; }
-        .warning { color: #ffc107; }
-        .error { color: #dc3545; }
 
         .verification-title {
             font-size: 28px;
@@ -64,11 +61,11 @@
             line-height: 1.2;
         }
 
-        .verification-message {
+        .verification-subtitle {
             font-size: 16px;
             color: #718096;
             line-height: 1.6;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
         }
 
         .email-address {
@@ -89,37 +86,38 @@
 
         .code-inputs {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             margin-bottom: 20px;
         }
 
         .code-input {
-            width: 50px;
-            height: 60px;
+            width: 55px;
+            height: 65px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             text-align: center;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
+            color: #2d3748;
             background: white;
             transition: all 0.3s ease;
+            outline: none;
         }
 
         .code-input:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            outline: none;
             transform: translateY(-2px);
         }
 
         .code-input.filled {
-            border-color: #28a745;
-            background: #f8fff9;
+            border-color: #48bb78;
+            background: #f0fff4;
         }
 
         .code-input.error {
-            border-color: #dc3545;
+            border-color: #f56565;
             background: #fdf2f2;
             animation: shake 0.5s ease-in-out;
         }
@@ -127,7 +125,14 @@
         .code-hint {
             color: #718096;
             font-size: 14px;
-            margin-bottom: 20px;
+            margin-bottom: 5px;
+        }
+
+        .timer {
+            font-size: 16px;
+            color: #667eea;
+            font-weight: 600;
+            margin: 10px 0;
         }
 
         .action-buttons {
@@ -139,7 +144,7 @@
         }
 
         .btn {
-            padding: 12px 30px;
+            padding: 14px 32px;
             border-radius: 50px;
             font-weight: 600;
             text-decoration: none;
@@ -163,15 +168,12 @@
             border: 2px solid #667eea;
         }
 
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
         .btn:disabled {
             background: #cbd5e0;
+            color: #718096;
             cursor: not-allowed;
             transform: none;
+            border: none;
         }
 
         .btn:hover:not(:disabled) {
@@ -179,41 +181,29 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
-        .countdown {
-            font-size: 14px;
-            color: #718096;
-            margin: 15px 0;
-        }
-
-        .timer {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 16px;
-        }
-
         .resend-info {
-            margin-top: 20px;
+            margin-top: 25px;
             padding-top: 20px;
             border-top: 1px solid #e2e8f0;
         }
 
         .error-message {
-            color: #dc3545;
-            background: #fdf2f2;
+            color: #e53e3e;
+            background: #fed7d7;
             border: 1px solid #feb2b2;
             border-radius: 8px;
-            padding: 12px;
-            margin: 15px 0;
+            padding: 12px 16px;
+            margin: 20px 0;
             display: none;
         }
 
         .success-message {
-            color: #28a745;
-            background: #f0fff4;
+            color: #38a169;
+            background: #c6f6d5;
             border: 1px solid #9ae6b4;
             border-radius: 8px;
-            padding: 12px;
-            margin: 15px 0;
+            padding: 12px 16px;
+            margin: 20px 0;
             display: none;
         }
 
@@ -246,41 +236,8 @@
             }
         }
 
-        .verification-container {
+        .verification-card {
             animation: fadeIn 0.8s ease-out;
-        }
-
-        /* Адаптивность */
-        @media (max-width: 576px) {
-            .verification-container {
-                padding: 30px 20px;
-                margin: 10px;
-            }
-
-            .verification-title {
-                font-size: 24px;
-            }
-
-            .code-inputs {
-                gap: 8px;
-            }
-
-            .code-input {
-                width: 45px;
-                height: 55px;
-                font-size: 20px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 250px;
-                justify-content: center;
-            }
         }
 
         .loading-spinner {
@@ -297,32 +254,62 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Адаптивность */
+        @media (max-width: 576px) {
+            .verification-card {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .verification-title {
+                font-size: 24px;
+            }
+
+            .code-inputs {
+                gap: 8px;
+            }
+
+            .code-input {
+                width: 45px;
+                height: 55px;
+                font-size: 22px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="verification-container">
-    <!-- Основное состояние - ввод кода -->
-    <div id="inputState">
-        <div class="verification-icon warning">
-            <i class="fas fa-shield-alt"></i>
-        </div>
+<div class="verification-card">
+    <div class="verification-icon">
+        <i class="fas fa-shield-alt"></i>
+    </div>
 
-        <h1 class="verification-title">Введите код подтверждения</h1>
+    <h1 class="verification-title">Подтвердите ваш email</h1>
 
-        <p class="verification-message">
-            Мы отправили 6-значный код на ваш email адрес.
-            Введите его ниже для подтверждения.
-        </p>
+    <p class="verification-subtitle">
+        Мы отправили 6-значный код на вашу электронную почту
+    </p>
 
-        <div class="email-address" id="userEmail">
-            user@example.com
-        </div>
+    <div class="email-address" th:text="${email}">
+        user@example.com
+    </div>
 
-        <!-- Сообщения -->
-        <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
+    <!-- Сообщения -->
+    <div class="error-message" id="errorMessage" th:if="${error}" th:text="${error}"></div>
+    <div class="success-message" id="successMessage"></div>
 
-        <!-- Поле ввода кода -->
+    <form method="post" action="/email" id="verificationForm">
         <div class="code-input-container">
             <div class="code-inputs" id="codeInputs">
                 <input type="text" class="code-input" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]">
@@ -333,93 +320,79 @@
                 <input type="text" class="code-input" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]">
             </div>
 
+            <input type="hidden" name="code" id="hiddenCode">
+
             <p class="code-hint">
                 <i class="fas fa-info-circle"></i>
                 Код действителен в течение 10 минут
             </p>
+
+            <div class="timer">
+                <i class="fas fa-clock"></i>
+                <span id="countdownTimer">10:00</span>
+            </div>
         </div>
 
-        <!-- Таймер -->
-        <div class="countdown">
-            Отправить код повторно через: <span class="timer" id="countdownTimer">600</span> сек.
-        </div>
-
-        <!-- Кнопки действий -->
         <div class="action-buttons">
-            <button class="btn btn-primary" id="verifyBtn" onclick="verifyCode()" disabled>
+            <button type="submit" class="btn btn-primary" id="verifyBtn" disabled>
                 <i class="fas fa-check"></i>
                 Подтвердить
             </button>
 
-            <button class="btn btn-secondary" id="resendBtn" onclick="resendCode()" disabled>
+            <button type="button" class="btn btn-secondary" id="resendBtn" onclick="resendCode()" disabled>
                 <i class="fas fa-redo"></i>
                 Отправить код снова
             </button>
         </div>
+    </form>
 
-        <div class="resend-info">
-            <p>Не получили код? Проверьте папку "Спам" или</p>
-            <button class="btn btn-secondary" onclick="changeEmail()" style="margin-top: 10px;">
-                <i class="fas fa-edit"></i>
-                Изменить email
-            </button>
-        </div>
-    </div>
-
-    <!-- Состояние успеха -->
-    <div id="successState" style="display: none;">
-        <div class="verification-icon success">
-            <i class="fas fa-check-circle"></i>
-        </div>
-
-        <h1 class="verification-title">Email успешно подтвержден!</h1>
-
-        <p class="verification-message">
-            Ваш email адрес был успешно подтвержден. Теперь вы можете пользоваться
-            всеми возможностями нашего магазина.
+    <div class="resend-info">
+        <p style="color: #718096; font-size: 14px; margin-bottom: 10px;">
+            Не получили код? Проверьте папку "Спам" или
         </p>
-
-        <div class="action-buttons">
-            <a href="/" class="btn btn-primary">
-                <i class="fas fa-home"></i>
-                На главную
-            </a>
-            <a href="/profile" class="btn btn-secondary">
-                <i class="fas fa-user"></i>
-                В личный кабинет
-            </a>
-        </div>
+        <button type="button" class="btn btn-secondary" onclick="changeEmail()" style="padding: 10px 20px;">
+            <i class="fas fa-edit"></i>
+            Изменить email
+        </button>
     </div>
 </div>
 
 <script>
-    // Конфигурация
-    const CODE_LENGTH = 6;
-    let countdownTime = 600; // 10 минут
+    let countdownTime = 600; // 10 минут в секундах
     let countdownInterval;
-    let verificationCode = '';
 
-    // Инициализация страницы
-    function initPage() {
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
         setupCodeInputs();
         startCountdown();
-        loadUserEmail();
-    }
-
-    // Загрузка email пользователя
-    function loadUserEmail() {
-        // В реальном приложении здесь будет запрос к API
-        const userEmail = 'user@example.com'; // Заглушка
-        document.getElementById('userEmail').textContent = userEmail;
-    }
+    });
 
     // Настройка полей ввода кода
     function setupCodeInputs() {
         const inputs = document.querySelectorAll('.code-input');
+        const hiddenInput = document.getElementById('hiddenCode');
+        const verifyBtn = document.getElementById('verifyBtn');
+
+        function updateCode() {
+            const code = Array.from(inputs).map(input => input.value).join('');
+            hiddenInput.value = code;
+
+            // Обновляем стили полей
+            inputs.forEach(input => {
+                if (input.value) {
+                    input.classList.add('filled');
+                } else {
+                    input.classList.remove('filled');
+                }
+            });
+
+            // Включаем/выключаем кнопку
+            verifyBtn.disabled = code.length !== 6;
+        }
 
         inputs.forEach((input, index) => {
             // Обработка ввода
-            input.addEventListener('input', (e) => {
+            input.addEventListener('input', function(e) {
                 const value = e.target.value;
 
                 // Разрешаем только цифры
@@ -428,62 +401,35 @@
                     return;
                 }
 
-                if (value.length === 1) {
-                    e.target.classList.add('filled');
-
-                    // Переход к следующему полю
-                    if (index < inputs.length - 1) {
-                        inputs[index + 1].focus();
-                    }
-
-                    // Проверяем заполненность всех полей
-                    checkCodeCompletion();
+                if (value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
                 }
+
+                updateCode();
             });
 
             // Обработка удаления
-            input.addEventListener('keydown', (e) => {
+            input.addEventListener('keydown', function(e) {
                 if (e.key === 'Backspace' && !e.target.value && index > 0) {
                     inputs[index - 1].focus();
                 }
             });
 
-            // Обработка вставки (пользователь вставил весь код)
-            input.addEventListener('paste', (e) => {
+            // Обработка вставки
+            input.addEventListener('paste', function(e) {
                 e.preventDefault();
                 const pastedData = e.clipboardData.getData('text');
-                const digits = pastedData.replace(/\D/g, '').substring(0, CODE_LENGTH);
+                const digits = pastedData.replace(/\D/g, '').substring(0, 6);
 
-                if (digits.length === CODE_LENGTH) {
-                    fillCodeInputs(digits);
+                if (digits.length === 6) {
+                    digits.split('').forEach((digit, idx) => {
+                        inputs[idx].value = digit;
+                    });
+                    updateCode();
+                    inputs[5].focus();
                 }
             });
         });
-    }
-
-    // Заполнение полей ввода кодом
-    function fillCodeInputs(code) {
-        const inputs = document.querySelectorAll('.code-input');
-        inputs.forEach((input, index) => {
-            input.value = code[index] || '';
-            if (code[index]) {
-                input.classList.add('filled');
-            }
-        });
-        checkCodeCompletion();
-    }
-
-    // Проверка заполнения всех полей
-    function checkCodeCompletion() {
-        const inputs = document.querySelectorAll('.code-input');
-        const isComplete = Array.from(inputs).every(input => input.value.length === 1);
-
-        const verifyBtn = document.getElementById('verifyBtn');
-        verifyBtn.disabled = !isComplete;
-
-        if (isComplete) {
-            verificationCode = Array.from(inputs).map(input => input.value).join('');
-        }
     }
 
     // Таймер обратного отсчета
@@ -491,66 +437,26 @@
         const timerElement = document.getElementById('countdownTimer');
         const resendBtn = document.getElementById('resendBtn');
 
-        updateTimerDisplay(timerElement, countdownTime);
+        updateTimerDisplay(timerElement);
         resendBtn.disabled = true;
 
         countdownInterval = setInterval(() => {
             countdownTime--;
-            updateTimerDisplay(timerElement, countdownTime);
+            updateTimerDisplay(timerElement);
 
             if (countdownTime <= 0) {
                 clearInterval(countdownInterval);
                 resendBtn.disabled = false;
-                timerElement.textContent = '0';
+                timerElement.textContent = '00:00';
             }
         }, 1000);
     }
 
     // Обновление отображения таймера
-    function updateTimerDisplay(timerElement, seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        timerElement.textContent = `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-
-    // Проверка кода
-    async function verifyCode() {
-        const verifyBtn = document.getElementById('verifyBtn');
-        const errorMessage = document.getElementById('errorMessage');
-
-        // Показываем загрузку
-        verifyBtn.innerHTML = '<span class="loading-spinner"></span> Проверка...';
-        verifyBtn.disabled = true;
-        hideMessage(errorMessage);
-
-        try {
-            const response = await fetch('/api/auth/verify-code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    code: verificationCode,
-                    email: document.getElementById('userEmail').textContent
-                })
-            });
-
-            if (response.ok) {
-                // Успешное подтверждение
-                showSuccessState();
-            } else {
-                const error = await response.json();
-                showErrorMessage(error.message || 'Неверный код подтверждения');
-                markCodeAsInvalid();
-            }
-
-        } catch (error) {
-            console.error('Ошибка:', error);
-            showErrorMessage('Ошибка соединения. Попробуйте еще раз.');
-        } finally {
-            verifyBtn.innerHTML = '<i class="fas fa-check"></i> Подтвердить';
-            verifyBtn.disabled = false;
-        }
+    function updateTimerDisplay(timerElement) {
+        const minutes = Math.floor(countdownTime / 60);
+        const seconds = countdownTime % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
     // Повторная отправка кода
@@ -558,37 +464,23 @@
         const resendBtn = document.getElementById('resendBtn');
         const errorMessage = document.getElementById('errorMessage');
 
-        hideMessage(errorMessage);
-        resetCodeInputs();
-
         try {
+            errorMessage.style.display = 'none';
             resendBtn.innerHTML = '<span class="loading-spinner"></span> Отправка...';
             resendBtn.disabled = true;
 
-            const response = await fetch('/api/auth/resend-code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: document.getElementById('userEmail').textContent
-                })
-            });
+            // Здесь будет запрос к API для повторной отправки
+            // await fetch('/resend-code', { method: 'POST' });
 
-            if (response.ok) {
-                // Сбрасываем таймер
-                clearInterval(countdownInterval);
-                countdownTime = 600;
-                startCountdown();
+            // Сбрасываем таймер
+            clearInterval(countdownInterval);
+            countdownTime = 600;
+            startCountdown();
 
-                showSuccessMessage('Новый код отправлен на ваш email!');
-            } else {
-                throw new Error('Ошибка отправки кода');
-            }
+            showSuccessMessage('Новый код отправлен на ваш email!');
 
         } catch (error) {
-            console.error('Ошибка:', error);
-            showErrorMessage('Ошибка при отправке кода. Попробуйте позже.');
+            showErrorMessage('Ошибка при отправке кода');
         } finally {
             resendBtn.innerHTML = '<i class="fas fa-redo"></i> Отправить код снова';
         }
@@ -596,28 +488,10 @@
 
     // Изменить email
     function changeEmail() {
-        const currentEmail = document.getElementById('userEmail').textContent;
-        const newEmail = prompt('Введите новый email адрес:', currentEmail);
-
-        if (newEmail && newEmail !== currentEmail) {
-            // Здесь будет запрос на изменение email
-            document.getElementById('userEmail').textContent = newEmail;
-            resetCodeInputs();
-            showSuccessMessage('Email изменен. Новый код отправлен.');
-
-            // Сбрасываем таймер и запрашиваем новый код
-            clearInterval(countdownInterval);
-            countdownTime = 600;
-            startCountdown();
-        }
+        window.location.href = '/register';
     }
 
     // Вспомогательные функции
-    function showSuccessState() {
-        document.getElementById('inputState').style.display = 'none';
-        document.getElementById('successState').style.display = 'block';
-    }
-
     function showErrorMessage(message) {
         const errorElement = document.getElementById('errorMessage');
         errorElement.textContent = message;
@@ -628,13 +502,12 @@
         const successElement = document.getElementById('successMessage');
         successElement.textContent = message;
         successElement.style.display = 'block';
-        setTimeout(() => hideMessage(successElement), 5000);
+        setTimeout(() => {
+            successElement.style.display = 'none';
+        }, 5000);
     }
 
-    function hideMessage(element) {
-        element.style.display = 'none';
-    }
-
+    // Показать ошибку в полях ввода
     function markCodeAsInvalid() {
         const inputs = document.querySelectorAll('.code-input');
         inputs.forEach(input => {
@@ -647,19 +520,6 @@
             });
         }, 1000);
     }
-
-    function resetCodeInputs() {
-        const inputs = document.querySelectorAll('.code-input');
-        inputs.forEach(input => {
-            input.value = '';
-            input.classList.remove('filled', 'error');
-        });
-        document.getElementById('verifyBtn').disabled = true;
-        verificationCode = '';
-    }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', initPage);
 </script>
 </body>
 </html>

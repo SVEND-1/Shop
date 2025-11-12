@@ -10,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТАТУСА
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

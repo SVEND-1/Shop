@@ -1,49 +1,242 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Корзина - MyShop</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <title>Корзина</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .cart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        .cart-title {
+            font-size: 2em;
+            color: #333;
+            margin: 0;
+        }
+        .cart-items {
+            margin-bottom: 30px;
+        }
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto auto auto;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+        .item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .item-details {
+            text-align: left;
+        }
+        .item-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .item-category {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+        .item-price {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: center;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quantity-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .cart-summary {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .summary-total {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        .checkout-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .checkout-btn:hover {
+            background: #219a52;
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-cart-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+        }
+        .continue-shopping {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .no-image {
+            background: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-<header class="header">
-    <!-- Тот же header -->
-</header>
+<div class="cart-container">
+    <div class="cart-header">
+        <h1 class="cart-title">🛒 Корзина</h1>
+        <a th:href="@{/product/catalog}" class="continue-shopping">← Продолжить покупки</a>
+    </div>
 
-<div class="container">
-    <h1>Корзина покупок</h1>
+    <!-- Если корзина пуста -->
+    <div th:if="${cartItems == null || cartItems.isEmpty()}" class="empty-cart">
+        <div class="empty-cart-icon">🛒</div>
+        <h2>Ваша корзина пуста</h2>
+        <p>Добавьте товары из каталога, чтобы сделать заказ</p>
+        <a th:href="@{/catalog}" class="continue-shopping">Перейти в каталог</a>
+    </div>
 
-    <div class="cart-content">
-        <div class="cart-items" id="cartItems">
-            <!-- Товары в корзине -->
-            <div class="empty-cart" id="emptyCart">
-                <p>Ваша корзина пуста</p>
-                <a href="/products" class="btn-primary">Перейти к покупкам</a>
+    <!-- Если в корзине есть товары -->
+    <div th:if="${cartItems != null && !cartItems.isEmpty()}">
+        <div class="cart-items">
+            <div th:each="item : ${cartItems}" class="cart-item">
+                <!-- Изображение товара -->
+                <img th:src="@{/uploads/images/{imageName}(imageName=${item.product.image})}"
+                     th:alt="${item.product.name}"
+                     class="item-image"
+                     onerror="this.onerror=null; this.classList.add('no-image'); this.alt='Нет изображения';">
+
+                <!-- Информация о товаре -->
+                <div class="item-details">
+                    <div class="item-name" th:text="${item.product.name}">Название товара</div>
+                    <div class="item-category" th:text="${item.product.category}">Категория</div>
+                </div>
+
+                <!-- Цена -->
+                <div class="item-price" th:text="'₽' + ${#numbers.formatDecimal(item.product.price, 1, 2)}">
+                    100.00
+                </div>
+
+                <!-- Управление количеством -->
+                <div class="quantity-controls">
+                    <button class="quantity-btn">-</button>
+                    <input type="number" class="quantity-input" value="1" min="1" th:value="${item.quantity}">
+                    <button class="quantity-btn">+</button>
+                </div>
+
+                <!-- Кнопка удаления -->
+                <form th:action="@{cart/deleted}" method="post">
+                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                    <button type="submit" class="remove-btn">Удалить</button>
+                </form>
             </div>
         </div>
 
+        <!-- Итоговая сумма -->
         <div class="cart-summary">
-            <h3>Итого</h3>
-            <div class="summary-item">
-                <span>Товары (3):</span>
-                <span>₽ 29 997</span>
+            <div class="summary-row">
+                <span>Товаров:</span>
+                <span th:text="${totalItems} + ' шт.'">3 шт.</span>
             </div>
-            <div class="summary-item">
-                <span>Доставка:</span>
-                <span>₽ 500</span>
+            <div class="summary-row">
+                <span>Общая стоимость:</span>
+                <span class="summary-total" th:text="'₽' + ${#numbers.formatDecimal(totalPrice, 1, 2)}">
+                        ₽300.00
+                    </span>
             </div>
-            <div class="summary-item total">
-                <span>Общая сумма:</span>
-                <span>₽ 30 497</span>
-            </div>
-
-            <button class="btn-primary" onclick="checkout()">Перейти к оформлению</button>
-            <a href="/products" class="btn-secondary">Продолжить покупки</a>
+            <button class="checkout-btn">Оформить заказ</button>
         </div>
     </div>
 </div>
-
-<script src="../js/cart.js"></script>
 </body>
 </html>

@@ -4,11 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль - MyShop</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .profile-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .profile-sidebar {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 2rem;
+        }
+
+        .user-info {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .user-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #ecf0f1;
+        }
+
+        .user-info p {
+            color: #bdc3c7;
+            font-size: 0.9rem;
+        }
+
+        .login-as {
+            text-align: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .login-as-label {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .role-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .role-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .role-btn.admin {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .role-btn.seller {
+            background: #f39c12;
+            color: white;
+        }
+
+        .role-btn.courier {
+            background: #27ae60;
+            color: white;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .role-btn.admin:hover {
+            background: #c0392b;
+        }
+
+        .role-btn.seller:hover {
+            background: #d35400;
+        }
+
+        .role-btn.courier:hover {
+            background: #219a52;
+        }
+
+        .profile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            padding: 12px 16px;
+            color: #bdc3c7;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .profile-main {
+            padding: 2rem;
+            background: #f8f9fa;
+        }
+
+        .profile-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .profile-section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .info-group {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 100px;
+            margin-right: 1rem;
+        }
+
+        .info-group span {
+            color: #555;
+            font-size: 1rem;
+        }
+
+        .text-muted {
+            color: #95a5a6 !important;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-sidebar {
+                text-align: center;
+            }
+
+            .info-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .info-group label {
+                min-width: auto;
+            }
+        }
+    </style>
 </head>
 <body>
 <header class="header">
-    <!-- Тот же header -->
 </header>
 
 <div class="container">
@@ -17,6 +232,15 @@
             <div class="user-info">
                 <h3 th:text="${user.name}">Иван Иванов</h3>
                 <p th:text="${user.email}">ivan@mail.ru</p>
+            </div>
+
+            <div class="login-as">
+                <span class="login-as-label">Войти как:</span>
+                <div class="role-buttons">
+                    <a href="#" class="role-btn admin">Админ</a>
+                    <a href="#" class="role-btn seller">Продавец</a>
+                    <a href="#" class="role-btn courier">Курьер</a>
+                </div>
             </div>
 
             <nav class="profile-nav">

@@ -16,24 +16,11 @@ import java.util.Map;
 @RestController
 public class Test {
 
-    @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
-    public String homePage() throws IOException {
-        return readHtmlFile("templates/index.html");
-    }
 
-    @GetMapping(value = "/products", produces = MediaType.TEXT_HTML_VALUE)
-    public String productsPage() throws IOException {
-        return readHtmlFile("static/html/products.html");
-    }
 
     @GetMapping(value = "/product/{id}", produces = MediaType.TEXT_HTML_VALUE)
     public String productDetailPage(@PathVariable String id) throws IOException {
         return readHtmlFile("templates/product-detail.html");
-    }
-
-    @GetMapping(value = "/cart", produces = MediaType.TEXT_HTML_VALUE)
-    public String cartPage() throws IOException {
-        return readHtmlFile("templates/cart.html");
     }
 
 

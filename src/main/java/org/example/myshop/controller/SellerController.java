@@ -16,12 +16,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/admin")
-public class AdminController {
+@RequestMapping("/seller")
+public class SellerController {
     private final ProductService productService;
 
     @Autowired
-    public AdminController(ProductService productService) {
+    public SellerController(ProductService productService) {
         this.productService = productService;
     }
 
@@ -43,7 +43,7 @@ public class AdminController {
             productService.create(product);
             return "redirect:/";
         } catch (Exception e) {
-            return "redirect:/admin/add";
+            return "redirect:/seller/add";
         }
     }
 
