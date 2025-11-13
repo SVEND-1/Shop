@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -18,23 +19,20 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final ProductService productService;
+    private final CartItemService cartItemService;
 
     @Autowired
-    public CartService(CartRepository cartRepository, ProductService productService) {
+    public CartService(CartRepository cartRepository, ProductService productService, CartItemService cartItemService) {
         this.cartRepository = cartRepository;
         this.productService = productService;
+        this.cartItemService = cartItemService;
     }
 
-//    public Cart getCartByUserId(Long userId)  {
-//        return cartRepository.getCartByUserId((userId));
-//    };
 
     public Cart getCartByUserId(Long userId) {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart != null) {
-            // Инициализируем коллекцию
             Hibernate.initialize(cart.getCartItems());
-            // Или для каждой коллекции внутри items
             for (CartItem item : cart.getCartItems()) {
                 Hibernate.initialize(item.getProduct());
             }
@@ -78,34 +76,31 @@ public class CartService {
         cart.addCartItem(product,quantity);
         return cartRepository.save(cart);
     }
-    public Cart cartAddProduct(Long cartId, Long productId,int quantity) {
+    public Cart cartAddProduct(Long cartId, Long productId) {
         Cart cart = getById(cartId);
-        cart.addCartItem(productService.getById(productId),quantity);
+        cartItemService.addItemToCart(cartId,productId,1);
         return cartRepository.save(cart);
     }
 
 
 
     public void cartRemoveProduct(Long userId, Long productId) {
-        // Получаем корзину с загруженными элементами
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             throw new RuntimeException("Корзина не найдена для пользователя: " + userId);
         }
 
-        // Убедитесь, что коллекция инициализирована
         if (cart.getCartItems() == null) {
-            return; // Нет товаров для удаления
+            return;
         }
 
-        // Удаляем товар
         boolean removed = cart.getCartItems().removeIf(item ->
                 item.getProduct() != null &&
                         item.getProduct().getId().equals(productId)
         );
 
         if (removed) {
-            cartRepository.save(cart); // Сохраняем изменения
+            cartRepository.save(cart);
             System.out.println("Товар с ID " + productId + " удален из корзины");
         } else {
             System.out.println("Товар с ID " + productId + " не найден в корзине");

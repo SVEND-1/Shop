@@ -1,73 +1,423 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Название товара - MyShop</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <title th:text="${product.name} + ' - Kortex'">Товар - Kortex</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .back-button:hover {
+            background: #2980b9;
+        }
+
+        .product-details {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .product-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        .product-image-section {
+            text-align: center;
+        }
+
+        .product-main-image {
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .no-image {
+            background: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 16px;
+            border: 2px dashed #bdc3c7;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .product-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .product-category {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .product-stock {
+            font-size: 1.1rem;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .in-stock {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .out-of-stock {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .product-description {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .product-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .meta-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .meta-value {
+            color: #555;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .action-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .add-to-cart-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .add-to-cart-btn:hover:not(:disabled) {
+            background: #219a52;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .add-to-cart-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .product-content {
+                grid-template-columns: 1fr;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .product-main-image {
+                height: 300px;
+            }
+
+            .product-title {
+                font-size: 2rem;
+            }
+
+            .product-price {
+                font-size: 1.5rem;
+            }
+
+            .add-to-cart-btn {
+                padding: 12px 20px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<header class="header">
-    <!-- Тот же header что и на главной -->
-</header>
-
 <div class="container">
-    <div class="product-detail">
-        <div class="product-images">
-            <img src="../images/product1.jpg" alt="Товар" id="mainImage">
-            <div class="product-thumbnails">
-                <img src="../images/product1.jpg" alt="Миниатюра 1" onclick="changeImage(this)">
-                <img src="../images/product2.jpg" alt="Миниатюра 2" onclick="changeImage(this)">
-                <img src="../images/product3.jpg" alt="Миниатюра 3" onclick="changeImage(this)">
-            </div>
-        </div>
+    <a th:href="@{/product/catalog}" class="back-button">← Назад к каталогу</a>
 
-        <div class="product-info">
-            <h1 id="productTitle">Название товара</h1>
-            <div class="product-price">
-                <span class="current-price" id="productPrice">₽ 9 999</span>
-                <span class="old-price">₽ 12 999</span>
+    <div class="product-details">
+        <div class="product-content">
+            <!-- Изображение товара -->
+            <div class="product-image-section">
+                <img th:src="@{/uploads/images/{imageName}(imageName=${product.image})}"
+                     th:alt="${product.name}"
+                     class="product-main-image"
+                     onerror="this.onerror=null; this.classList.add('no-image'); this.alt='Изображение не найдено';">
             </div>
 
-            <div class="product-rating">
-                ★★★★★ <span>(128 отзывов)</span>
-            </div>
+            <!-- Информация о товаре -->
+            <div class="product-info">
+                <h1 class="product-title" th:text="${product.name}">Название товара</h1>
 
-            <div class="product-description">
-                <p id="productDescription">Описание товара...</p>
-            </div>
+                <div class="product-category" th:text="${product.category}">Категория</div>
 
-            <div class="product-actions">
-                <div class="quantity-selector">
-                    <button onclick="decreaseQuantity()">-</button>
-                    <span id="quantity">1</span>
-                    <button onclick="increaseQuantity()">+</button>
+                <div class="product-price" th:text="'₽' + ${#numbers.formatDecimal(product.price, 1, 2)}">
+                    ₽0.00
                 </div>
 
-                <button class="btn-primary" onclick="addToCart()">Добавить в корзину</button>
-                <button class="btn-secondary">❤️ В избранное</button>
-            </div>
+                <div th:classappend="${product.count > 0} ? 'in-stock' : 'out-of-stock'"
+                     class="product-stock">
+                        <span th:if="${product.count > 0}" th:text="'В наличии: ' + ${product.count} + ' шт.'">
+                            В наличии: 10 шт.
+                        </span>
+                    <span th:if="${product.count == 0}">Нет в наличии</span>
+                </div>
 
-            <div class="product-specs">
-                <h4>Характеристики:</h4>
-                <ul id="productSpecs">
-                    <li>Категория: <span>Электроника</span></li>
-                    <li>Бренд: <span>Brand Name</span></li>
-                    <li>Гарантия: <span>12 месяцев</span></li>
-                </ul>
+                <div class="product-description" th:text="${product.description} ?: 'Описание товара отсутствует'">
+                    Описание товара будет здесь...
+                </div>
+
+                <!-- Дополнительная информация -->
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">ID товара</span>
+                        <span class="meta-value" th:text="${product.id}">12345</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Категория</span>
+                        <span class="meta-value" th:text="${product.category}">Категория</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Статус</span>
+                        <span class="meta-value" th:text="${product.count > 0} ? 'В наличии' : 'Нет в наличии'">
+                                В наличии
+                            </span>
+                    </div>
+                </div>
+
+                <!-- Блок действий -->
+                <div class="action-section">
+                    <!-- Простая кнопка для теста -->
+                    <button th:onclick="|addToCart(${product.id})|"
+                            class="add-to-cart-btn"
+                            th:disabled="${product.count == 0}"
+                            id="addToCartButton">
+                        <span th:if="${product.count > 0}">🛒 Добавить в корзину</span>
+                        <span th:if="${product.count == 0}">❌ Нет в наличии</span>
+                    </button>
+
+                    <div id="successMessage" class="success-message">
+                        ✅ Товар успешно добавлен в корзину!
+                    </div>
+
+                    <div id="errorMessage" class="error-message">
+                        ❌ Произошла ошибка при добавлении товара
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Отзывы -->
-    <section class="reviews">
-        <h3>Отзывы покупателей</h3>
-        <div class="reviews-list">
-            <!-- Отзывы будут загружены динамически -->
-        </div>
-    </section>
 </div>
 
-<script src="../js/product.js"></script>
+<script>
+    function addToCart(productId) {
+        const button = document.getElementById('addToCartButton');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const originalText = button.innerHTML;
+
+        // Показываем состояние загрузки
+        button.innerHTML = '🔄 Добавляем...';
+        button.disabled = true;
+
+        // Создаем форму динамически
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/catalog/add';
+
+        // Добавляем CSRF токен
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_csrf';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Добавляем productId
+        const productInput = document.createElement('input');
+        productInput.type = 'hidden';
+        productInput.name = 'productId';
+        productInput.value = productId;
+        form.appendChild(productInput);
+
+        // Добавляем форму на страницу и отправляем
+        document.body.appendChild(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `productId=${productId}&_csrf=${csrfToken}`
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Успех
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    button.innerHTML = '✅ Добавлено!';
+
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                button.innerHTML = '❌ Ошибка';
+
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 3000);
+            })
+            .finally(() => {
+                // Удаляем форму
+                document.body.removeChild(form);
+            });
+    }
+
+    // Добавляем CSRF мета-теги если их нет
+    if (!document.querySelector('meta[name="_csrf"]')) {
+        const csrfMeta = document.createElement('meta');
+        csrfMeta.name = '_csrf';
+        csrfMeta.content = document.querySelector('input[name="_csrf"]')?.value || '';
+        document.head.appendChild(csrfMeta);
+    }
+
+    if (!document.querySelector('meta[name="_csrf_header"]')) {
+        const csrfHeaderMeta = document.createElement('meta');
+        csrfHeaderMeta.name = '_csrf_header';
+        csrfHeaderMeta.content = 'X-CSRF-TOKEN';
+        document.head.appendChild(csrfHeaderMeta);
+    }
+</script>
 </body>
 </html>

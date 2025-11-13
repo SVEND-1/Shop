@@ -17,13 +17,6 @@ import java.util.Map;
 public class Test {
 
 
-
-    @GetMapping(value = "/product/{id}", produces = MediaType.TEXT_HTML_VALUE)
-    public String productDetailPage(@PathVariable String id) throws IOException {
-        return readHtmlFile("templates/product-detail.html");
-    }
-
-
     @GetMapping(value = "/checkout", produces = MediaType.TEXT_HTML_VALUE)
     public String checkoutPage() throws IOException {
         return readHtmlFile("templates/checkout.html");

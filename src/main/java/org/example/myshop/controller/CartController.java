@@ -40,4 +40,16 @@ public class CartController {
         return "redirect:/cart";
     }
 
+    @PostMapping("/quantity-reduce")
+    public String productQuantityReduce(@RequestParam Long cartItemId, @RequestParam int quantity) {//TODO нормально обработать если 1 товар всего
+        cartItemService.updateQuantity(cartItemId, quantity - 1);
+        return "redirect:/cart";
+    }
+
+    @PostMapping("/quantity-increase")
+    private String productQuantityIncrease(@RequestParam Long cartItemId, @RequestParam int quantity) {
+        cartItemService.updateQuantity(cartItemId, quantity + 1);
+        return "redirect:/cart";
+    }
 }
+

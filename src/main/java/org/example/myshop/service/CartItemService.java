@@ -45,30 +45,24 @@ public class CartItemService {
     }
 
     public CartItem addItemToCart(Long cartId, Long productId, Integer quantity) {
-        // Проверяем существование корзины
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Корзина не найдена"));
 
-        // Проверяем существование продукта
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
 
-        // Проверяем корректность количества
         if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("Количество должно быть больше 0");
         }
 
-        // Проверяем, есть ли уже такой товар в корзине findByCartIdAndProductId
         Optional<CartItem> existingCartItem = cartItemRepository.findByCartIdAndProductId(cartId, productId);
 
         if (existingCartItem.isPresent()) {
-            // Если товар уже есть в корзине - обновляем количество
             CartItem cartItem = existingCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
             cartItem.calculatePrice();
             return cartItemRepository.save(cartItem);
         } else {
-            // Если товара нет в корзине - создаем новый CartItem
             CartItem cartItem = new CartItem();
             cartItem.setCart(cart);
             cartItem.setProduct(product);
@@ -80,16 +74,13 @@ public class CartItemService {
     }
 
     public CartItem updateQuantity(Long cartItemId, Integer quantity) {
-        // Проверяем корректность количества
         if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("Количество должно быть больше 0");
         }
 
-        // Находим CartItem
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("CartItem не найден"));
 
-        // Обновляем количество и пересчитываем цену
         cartItem.setQuantity(quantity);
         cartItem.calculatePrice();
 
@@ -97,7 +88,6 @@ public class CartItemService {
     }
 
     public void removeItemFromCart(Long cartItemId) {
-        // Проверяем существование CartItem
         if (!cartItemRepository.existsById(cartItemId)) {
             throw new EntityNotFoundException("CartItem не найден");
         }
@@ -106,29 +96,23 @@ public class CartItemService {
     }
 
     public void removeItemFromCart(Long cartId, Long productId) {
-        // Проверяем существование корзины
         if (!cartRepository.existsById(cartId)) {
             throw new EntityNotFoundException("Корзина не найдена");
         }
 
-        // Проверяем существование продукта
         if (!productRepository.existsById(productId)) {
             throw new EntityNotFoundException("Продукт не найден");
         }
 
-        // Удаляем CartItem по cartId и productId deleteByCartIdAndProductId
         cartItemRepository.deleteByCartIdAndProductId(cartId, productId);
     }
 
-    // Дополнительные полезные методы
 
     public void clearCart(Long cartId) {
-        // Проверяем существование корзины
         if (!cartRepository.existsById(cartId)) {
             throw new EntityNotFoundException("Корзина не найдена");
         }
 
-        // Находим все CartItem для данной корзины и удаляем их
         List<CartItem> cartItems = cartItemRepository.findAllByCartId(cartId);
         cartItemRepository.deleteAll(cartItems);
     }

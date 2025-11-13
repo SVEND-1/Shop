@@ -207,14 +207,22 @@
                     100.00
                 </div>
 
-                <!-- Управление количеством -->
                 <div class="quantity-controls">
-                    <button class="quantity-btn">-</button>
-                    <input type="number" class="quantity-input" value="1" min="1" th:value="${item.quantity}">
-                    <button class="quantity-btn">+</button>
+                    <form th:action="@{/cart/quantity-reduce}" method="post">
+                        <input type="hidden" name="cartItemId" th:value="${item.id}">
+                        <input type="hidden" name="quantity" th:value="${item.quantity}">
+                        <button type="submit" class="quantity-btn">-</button>
+                    </form>
+
+                    <span class="quantity-display" th:text="${item.quantity}">1</span>
+
+                    <form th:action="@{/cart/quantity-increase}" method="post">
+                        <input type="hidden" name="cartItemId" th:value="${item.id}">
+                        <input type="hidden" name="quantity" th:value="${item.quantity}">
+                        <button type="submit" class="quantity-btn">+</button>
+                    </form>
                 </div>
 
-                <!-- Кнопка удаления -->
                 <form th:action="@{cart/deleted}" method="post">
                     <input type="hidden" name="cartItemId" th:value="${item.id}">
                     <button type="submit" class="remove-btn">Удалить</button>

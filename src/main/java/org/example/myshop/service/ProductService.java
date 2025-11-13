@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,9 +37,14 @@ public class ProductService {//TODO: Сортировка по цене,кате
         return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
     }
 
+    public List<Product> searchProducts(String query){
+        return findAll().stream().filter(product -> product.getName().contains(query)).collect(Collectors.toList());
+    }
+
     public List<Product> findAll() {
         return productRepository.findAll();
     }
+
 
     public Product create(Product productToCreate) {
         return productRepository.save(productToCreate);

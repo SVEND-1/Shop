@@ -7,10 +7,12 @@ import org.example.myshop.service.CartService;
 import org.example.myshop.service.ProductService;
 import org.example.myshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -38,7 +40,14 @@ public class ProductController {
     public String addProductToCart(@RequestParam Long productId) {//TODO многопоточность + проверки + если есть уже товар такой то просто добавлять 1
         User user = userService.getCurrentUser();
         Cart cart = cartService.getCartByUserId(user.getId());
-        cartService.cartAddProduct(cart.getId(),productId,1);
+        cartService.cartAddProduct(cart.getId(),productId);
         return "redirect:/product/catalog";
+    }
+
+    @GetMapping("/{id}")
+    public String productDetailPage(@PathVariable String id, Model model)  {
+        Product product = productService.getById(Long.parseLong(id));
+        model.addAttribute("product", product);
+        return "product-detail";
     }
 }

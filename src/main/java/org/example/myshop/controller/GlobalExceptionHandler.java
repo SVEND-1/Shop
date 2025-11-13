@@ -17,6 +17,6 @@ public class GlobalExceptionHandler implements ErrorController {
 
     @ExceptionHandler(Throwable.class)
     public String handleThrowable(Throwable throwable) {
-        return "redirect:/error";
+        return "redirect:/error?throwable=" + throwable.getMessage();
     }
 }
