@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MyShopApplication {
     //TODO написать тесты
     //TODO реализовать dto
-    //TODO соединить с фронтендом
     //TODO сделать докер
     //TODO сделать аптимизацию запросов к базе данных
     //TODO реализовать многопоточность

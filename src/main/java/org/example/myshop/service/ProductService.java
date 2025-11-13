@@ -21,12 +21,10 @@ import java.util.NoSuchElementException;
 public class ProductService {//TODO: Сортировка по цене,категории
 
     private final ProductRepository productRepository;
-    private final UserService userService;
 
     @Autowired
-    public ProductService(ProductRepository productRepository,@Lazy UserService userService) {
+    public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.userService = userService;
     }
 
     public Page<Product> findProductsWithPagination(int offset, int limit) {

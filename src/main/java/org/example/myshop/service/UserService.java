@@ -40,6 +40,12 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }
 
+    public User appoint(Long userId, User.Role role) {
+        User user = getById(userId);
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+
     public User getByEmail(String email) {
         return userRepository.findByEmailEqualsIgnoreCase(email);
     }

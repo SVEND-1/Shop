@@ -25,6 +25,11 @@ public class SellerController {
         this.productService = productService;
     }
 
+    @GetMapping
+    public String sellerPage() {
+        return "seller";
+    }
+
     @GetMapping("/add")
     public String AddProductPage(Model model) {//TODO Переписать под другой фронтент
         model.addAttribute("product", new Product());
