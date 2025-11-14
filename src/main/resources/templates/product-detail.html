@@ -305,20 +305,24 @@
 
                 <!-- Блок действий -->
                 <div class="action-section">
-                    <!-- Простая кнопка для теста -->
-                    <button th:onclick="|addToCart(${product.id})|"
-                            class="add-to-cart-btn"
-                            th:disabled="${product.count == 0}"
-                            id="addToCartButton">
-                        <span th:if="${product.count > 0}">🛒 Добавить в корзину</span>
-                        <span th:if="${product.count == 0}">❌ Нет в наличии</span>
-                    </button>
+                    <!-- Форма добавления в корзину -->
+                    <form th:action="@{catalog/add}" method="post" target="hiddenFrame">
+                        <input type="hidden" name="productId" th:value="${product.id}">
+                        <button type="submit"
+                                class="add-to-cart-btn"
+                                th:disabled="${product.count == 0}"
+                                onclick="event.stopPropagation()">
+                            <span th:if="${product.count > 0}">Добавить в корзину</span>
+                            <span th:if="${product.count == 0}">Нет в наличии</span>
+                        </button>
+                    </form>
 
-                    <div id="successMessage" class="success-message">
+                    <!-- Сообщения -->
+                    <div th:if="${param.success != null}" class="success-message">
                         ✅ Товар успешно добавлен в корзину!
                     </div>
 
-                    <div id="errorMessage" class="error-message">
+                    <div th:if="${param.error != null}" class="error-message">
                         ❌ Произошла ошибка при добавлении товара
                     </div>
                 </div>
@@ -326,7 +330,7 @@
         </div>
     </div>
 </div>
-
+<iframe name="hiddenFrame" style="display: none;"></iframe>
 <script>
     function addToCart(productId) {
         const button = document.getElementById('addToCartButton');

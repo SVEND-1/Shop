@@ -1,85 +1,490 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оформление заказа - MyShop</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <title>Оформление заказа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .checkout-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .checkout-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        @media (max-width: 968px) {
+            .checkout-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 20px;
+            }
+        }
+
+        .checkout-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .payment-method:hover {
+            border-color: #3498db;
+        }
+
+        .payment-method.selected {
+            border-color: #3498db;
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .order-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .item-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .item-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .item-quantity {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .item-total {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .summary-totals {
+            border-top: 2px solid #e9ecef;
+            padding-top: 20px;
+            margin-bottom: 25px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .final-total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            border-top: 1px solid #e9ecef;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .submit-order-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-order-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .submit-order-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
 </head>
 <body>
-<header class="header">
-    <!-- Тот же header -->
-</header>
-
 <div class="container">
-    <h1>Оформление заказа</h1>
+    <a th:href="@{/cart}" class="back-button">← Назад в корзину</a>
 
-    <div class="checkout-content">
-        <div class="checkout-form">
-            <form id="orderForm">
-                <h3>Данные получателя</h3>
-                <div class="form-group">
-                    <label>ФИО *</label>
-                    <input type="text" required>
-                </div>
-                <div class="form-group">
-                    <label>Телефон *</label>
-                    <input type="tel" required>
-                </div>
-                <div class="form-group">
-                    <label>Email *</label>
-                    <input type="email" required>
+    <div class="checkout-container">
+        <div class="checkout-content">
+            <h1 class="checkout-title">Оформление заказа</h1>
+
+            <!-- Форма заказа -->
+            <div class="form-column">
+                <!-- Данные доставки -->
+                <div class="form-section">
+                    <h2 class="section-title">📦 Данные доставки</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">ФИО получателя *</label>
+                        <input type="text"
+                               class="form-input"
+                               placeholder="Иванов Иван Иванович"
+                               required
+                               th:value="${user.name}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email"
+                               class="form-input"
+                               placeholder="ivan@example.com"
+                               required
+                               th:value="${user.email}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Адрес доставки *</label>
+                        <textarea class="form-input"
+                                  rows="3"
+                                  placeholder="Город, улица, дом, квартира"
+                                  required
+                                  th:text="${user.address}"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Комментарий к заказу</label>
+                        <textarea class="form-input"
+                                  rows="3"
+                                  placeholder="Дополнительные пожелания..."
+                                  name="comment"></textarea>
+                    </div>
                 </div>
 
-                <h3>Адрес доставки</h3>
-                <div class="form-group">
-                    <label>Город *</label>
-                    <input type="text" required>
-                </div>
-                <div class="form-group">
-                    <label>Адрес *</label>
-                    <textarea required></textarea>
-                </div>
+                <!-- Способ оплаты -->
+                <div class="form-section">
 
-                <h3>Способ оплаты</h3>
-                <div class="payment-methods">
-                    <label class="payment-method">
-                        <input type="radio" name="payment" value="card" checked>
-                        <span>Банковская карта</span>
-                    </label>
-                    <label class="payment-method">
-                        <input type="radio" name="payment" value="cash">
-                        <span>Наличными при получении</span>
-                    </label>
+                    <div class="form-group">
+                        <label class="form-label">Номер карты *</label>
+                        <input type="text"
+                               class="form-input"
+                               placeholder="1234 5678 9012 3456"
+                               maxlength="19"
+                               oninput="formatCardNumber(this)"
+                               name="cardNumber">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Срок действия *</label>
+                            <input type="text"
+                                   class="form-input"
+                                   placeholder="ММ/ГГ"
+                                   maxlength="5"
+                                   oninput="formatExpiry(this)"
+                                   name="cardExpiry">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV *</label>
+                            <input type="text"
+                                   class="form-input"
+                                   placeholder="123"
+                                   maxlength="3"
+                                   name="cardCvv">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Имя владельца карты *</label>
+                        <input type="text"
+                               class="form-input"
+                               placeholder="IVAN IVANOV"
+                               required
+                               name="cardHolder">
+                    </div>
                 </div>
-
-                <button type="submit" class="btn-primary">Оформить заказ</button>
-            </form>
-        </div>
-
-        <div class="order-summary">
-            <h3>Ваш заказ</h3>
-            <div class="order-items">
-                <!-- Товары в заказе -->
             </div>
-            <div class="order-total">
-                <div class="total-item">
-                    <span>Сумма заказа:</span>
-                    <span>₽ 29 997</span>
+
+            <!-- Итоги заказа -->
+            <div class="order-summary">
+                <h2 class="section-title">🛍️ Ваш заказ</h2>
+
+                <div class="order-items">
+                    <div th:each="item : ${cartItems}" class="order-item">
+                        <div class="item-info">
+                            <img th:src="@{/uploads/images/{imageName}(imageName=${item.product.image})}"
+                                 th:alt="${item.product.name}"
+                                 class="item-image"
+                                 onerror="this.onerror=null; this.style.display='none'">
+                            <div>
+                                <div class="item-name" th:text="${item.product.name}">Товар</div>
+                                <div class="item-quantity" th:text="${item.quantity} + ' шт.'">1 шт.</div>
+                            </div>
+                        </div>
+                        <div class="item-total" th:text="'₽' + ${#numbers.formatDecimal(item.product.price * item.quantity, 1, 2)}">
+                            ₽100.00
+                        </div>
+                    </div>
                 </div>
-                <div class="total-item">
-                    <span>Доставка:</span>
-                    <span>₽ 500</span>
+
+                <div class="summary-totals">
+                    <div class="total-row">
+                        <span>Товары:</span>
+                        <span th:text="${totalItems} + ' шт.'">3 шт.</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Доставка:</span>
+                        <span>₽0.00</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Скидка:</span>
+                        <span style="color: #27ae60;">-₽0.00</span>
+                    </div>
+                    <div class="total-row final-total">
+                        <span>Итого:</span>
+                        <span th:text="'₽' + ${#numbers.formatDecimal(totalPrice, 1, 2)}">₽300.00</span>
+                    </div>
                 </div>
-                <div class="total-item final">
-                    <span>Итого:</span>
-                    <span>₽ 30 497</span>
+
+                <form action="/order/create" method="post">
+                    <button type="submit" class="submit-order-btn">
+                        🚀 Оформить заказ
+                    </button>
+                </form>
+
+                <div class="success-message" id="successMessage">
+                    ✅ Заказ успешно оформлен!
+                </div>
+
+                <div class="error-message" id="errorMessage">
+                    ❌ Произошла ошибка при оформлении заказа
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="../js/checkout.js"></script>
+<script>
+    // Выбор способа оплаты
+    function selectPayment(element) {
+        document.querySelectorAll('.payment-method').forEach(el => {
+            el.classList.remove('selected');
+        });
+        element.classList.add('selected');
+    }
+
+    // Форматирование номера карты
+    function formatCardNumber(input) {
+        let value = input.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = '';
+
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) {
+                formattedValue += ' ';
+            }
+            formattedValue += value[i];
+        }
+
+        input.value = formattedValue;
+    }
+
+    // Форматирование срока действия карты
+    function formatExpiry(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        input.value = value;
+    }
+
+    // Обработка отправки формы
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const submitBtn = document.querySelector('.submit-order-btn');
+        const originalText = submitBtn.innerHTML;
+
+        // Показываем загрузку
+        submitBtn.innerHTML = '⏳ Обрабатываем заказ...';
+        submitBtn.disabled = true;
+
+        // В реальном приложении здесь была бы валидация и отправка
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+</script>
 </body>
 </html>

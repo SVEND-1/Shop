@@ -17,12 +17,6 @@ import java.util.Map;
 public class Test {
 
 
-    @GetMapping(value = "/checkout", produces = MediaType.TEXT_HTML_VALUE)
-    public String checkoutPage() throws IOException {
-        return readHtmlFile("templates/checkout.html");
-    }
-
-
     @PostMapping("/api/auth/forgot-password")
     public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         Map<String, Object> response = new HashMap<>();

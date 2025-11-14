@@ -14,7 +14,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/cart")
-public class CartController {
+public class CartController {//Todo Добавить заказы
     private final CartService cartService;
     private final UserService userService;
     private final CartItemService cartItemService;
@@ -31,6 +31,8 @@ public class CartController {
         Cart cart = cartService.getCartByUserId(userService.getCurrentUser().getId());
         List<CartItem> cartItems = cartItemService.findAllByCartId(cart.getId());
         model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalPrice", cart.totalPrice());
+        model.addAttribute("totalItems", cart.getQuantity());
         return "cart";
     }
 

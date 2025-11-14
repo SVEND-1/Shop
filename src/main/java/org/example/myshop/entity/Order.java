@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТАТУСА
-
+//TODO Добавить курьера
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,6 +19,10 @@ public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТ
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "courier_id")
+    private User courier;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -40,9 +44,10 @@ public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТ
         this.orderDate = LocalDateTime.now();
     }
 
-    public Order(Long id, User user, OrderStatus status, BigDecimal totalAmount, List<OrderItem> orderItems) {
+    public Order(Long id, User user,User courier, OrderStatus status, BigDecimal totalAmount, List<OrderItem> orderItems) {
         this.id = id;
         this.user = user;
+        this.courier = courier;
         this.status = status;
         this.orderDate = LocalDateTime.now();
         this.shippingAddress = user.getAddress();
@@ -56,6 +61,14 @@ public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТ
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getCourier() {
+        return courier;
+    }
+
+    public void setCourier(User courier) {
+        this.courier = courier;
     }
 
     public User getUser() {
@@ -113,7 +126,7 @@ public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТ
     }
 
     public enum OrderStatus {
-        PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED;
+        PENDING, CONFIRMED, PROCESSING,AWAITING_COURIER, DISPATCHED, DELIVERED_TO_DESTINATION, CANCELLED, RETURNED;
         public SimpleGrantedAuthority toAuthority() {
             return new SimpleGrantedAuthority("ROLE_" + this.name());
         }

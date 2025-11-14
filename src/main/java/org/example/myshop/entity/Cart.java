@@ -72,11 +72,23 @@ public class Cart {
     public void calculateTotalPrice() {
         this.totalPrice = cartItems.stream()
                 .map(item -> {
-                    item.calculatePrice(); // Обновляем цену каждого элемента
+                    item.calculatePrice();
                     return item.getPrice();
                 })
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal totalPrice(){
+        List<BigDecimal> result = new ArrayList<>();
+        cartItems.forEach(el -> {result.add(el.getPrice());});
+        return result.stream().reduce(BigDecimal.valueOf(0),BigDecimal::add);
+    }
+
+    public int getQuantity() {
+        List<Integer> result = new ArrayList<>();
+        cartItems.forEach(el -> {result.add(el.getQuantity());});
+        return result.stream().reduce(0, Integer::sum);
     }
 
     public void addCartItem(Product product,int quantity) {

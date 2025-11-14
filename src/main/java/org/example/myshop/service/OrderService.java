@@ -35,7 +35,9 @@ public class OrderService {
         this.orderItemService = orderItemService;
     }
 
-
+    public List<Order> getAll(){
+        return orderRepository.findAll();
+    }
 
     public Order getById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
@@ -46,53 +48,34 @@ public class OrderService {
     }
 
     public Order createOrderFromCart(Long userId) {
-        // 1. Получаем пользователя и проверяем его существование
         User user = userService.getById(userId);
-        System.out.println("🔄 Создание заказа для пользователя: " + user.getName());
 
-        // 2. Получаем корзину пользователя с товарами
         Cart cart = cartService.getCartByUserId(userId);
         if (cart == null) {
             throw new RuntimeException("Корзина не найдена для пользователя с ID: " + userId);
         }
 
-        // 3. Проверяем, что корзина не пуста
         if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
             throw new RuntimeException("Корзина пуста, невозможно создать заказ");
         }
 
-        // 4. Проверяем доступность товаров и их количество
         validateCartItems(cart);
 
-        // 5. Создаем новый заказ
         Order order = new Order();
         order.setUser(user);
         order.setStatus(Order.OrderStatus.PENDING);
 
-        // 6. Рассчитываем общую сумму заказа
         BigDecimal totalAmount = calculateTotalAmount(cart);
         order.setTotalAmount(totalAmount);
 
-        // 7. Сохраняем заказ в базу
         Order savedOrder = orderRepository.save(order);
-        System.out.println("✅ Заказ создан с ID: " + savedOrder.getId());
 
-        // 8. Создаем элементы заказа из корзины
         List<OrderItem> orderItems = createOrderItemsFromCart(cart, savedOrder);
         savedOrder.setOrderItems(orderItems);
 
-
-        // 10. Очищаем корзину
         cartService.clearCartByUserId(userId);
-        System.out.println("🗑️ Корзина очищена");
 
-        // 11. Обновляем заказ с итоговой информацией
         Order finalOrder = orderRepository.save(savedOrder);
-
-        System.out.println("🎉 Заказ успешно создан!");
-        System.out.println("   Номер заказа: " + finalOrder.getId());
-        System.out.println("   Товаров: " + finalOrder.getOrderItems().size());
-        System.out.println("   Общая сумма: $" + finalOrder.getTotalAmount());
 
         return finalOrder;
     }
@@ -204,6 +187,7 @@ public class OrderService {
         Order updatedOrder = new Order(
                 order.getId(),
                 orderToUpdate.getUser(),
+                orderToUpdate.getCourier(),
                 orderToUpdate.getStatus(),
                 orderToUpdate.getTotalAmount(),
                 orderToUpdate.getOrderItems());
