@@ -45,6 +45,11 @@ public class ProductService {//TODO: Сортировка по цене,кате
         return productRepository.findAll();
     }
 
+    public Product productSubtractQuantity(Long productId, int quantity) {
+        Product product = getById(productId);
+        product.setCount(product.getCount() - quantity);
+        return productRepository.save(product);
+    }
 
     public Product create(Product productToCreate) {
         return productRepository.save(productToCreate);

@@ -38,10 +38,11 @@ public class UserController {
         return "profile";
     }
 
-    @PostMapping("/profile")
-    public String profilePost(@RequestParam("address") String address) {
+
+    @PostMapping("/profile/update-address")
+    public String updateAddress(@RequestParam String newAddress) {
         User user = userService.getCurrentUser();
-        user.setAddress(address);
+        user.setAddress(newAddress);
         userService.update(user.getId(), user);
         return "redirect:/user/profile";
     }

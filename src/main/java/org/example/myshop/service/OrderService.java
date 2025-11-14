@@ -76,6 +76,9 @@ public class OrderService {
         cartService.clearCartByUserId(userId);
 
         Order finalOrder = orderRepository.save(savedOrder);
+        for(OrderItem orderItem : finalOrder.getOrderItems()) {
+            productService.productSubtractQuantity(orderItem.getProduct().getId(),orderItem.getQuantity());
+        }
 
         return finalOrder;
     }

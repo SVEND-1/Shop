@@ -159,6 +159,7 @@
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
         }
 
         .profile-section h2 {
@@ -201,6 +202,132 @@
             font-style: italic;
         }
 
+        /* Стили для формы изменения адреса */
+        .address-form {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .edit-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: #2980b9;
+        }
+
+        .current-address {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Стили для уведомлений */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         @media (max-width: 768px) {
             .profile-content {
                 grid-template-columns: 1fr;
@@ -218,6 +345,26 @@
 
             .info-group label {
                 min-width: auto;
+            }
+
+            .current-address {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .address-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-secondary {
+                margin-left: 0;
+                margin-top: 10px;
             }
         }
     </style>
@@ -250,6 +397,14 @@
         </div>
 
         <div class="profile-main">
+            <!-- Уведомления -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i> <span th:text="${successMessage}">Адрес успешно обновлен!</span>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}">Ошибка при обновлении адреса</span>
+            </div>
+
             <!-- Личные данные -->
             <div id="personal" class="profile-section">
                 <h2>Личные данные</h2>
@@ -262,19 +417,88 @@
                         <label>Email:</label>
                         <span th:text="${user.email}">ivan@mail.ru</span>
                     </div>
-                    <div class="info-group" th:if="${user.address != null and !user.address.isEmpty()}">
+                    <div class="info-group">
                         <label>Адрес:</label>
-                        <span th:text="${user.address}">г. Москва, ул. Примерная, д. 123</span>
+                        <div class="current-address">
+                            <div>
+                                <span th:if="${user.address != null and !user.address.isEmpty()}" th:text="${user.address}">
+                                    г. Москва, ул. Примерная, д. 123
+                                </span>
+                                <span th:unless="${user.address != null and !user.address.isEmpty()}" class="text-muted">
+                                    Не указан
+                                </span>
+                            </div>
+                            <div class="address-actions">
+                                <button class="edit-btn" onclick="toggleAddressForm()">
+                                    <i class="fas fa-edit"></i> Изменить
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="info-group" th:unless="${user.address != null and !user.address.isEmpty()}">
-                        <label>Адрес:</label>
-                        <span class="text-muted">Не указан</span>
-                    </div>
+                </div>
+
+                <div id="addressForm" class="address-form" style="display: none;">
+                    <h3 style="margin-bottom: 1rem; color: #2c3e50;">Изменение адреса</h3>
+                    <form th:action="@{/user/profile/update-address}" method="post">
+                        <div class="form-group">
+                            <label for="newAddress">Новый адрес:</label>
+                            <textarea
+                                    id="newAddress"
+                                    name="newAddress"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Введите ваш полный адрес (город, улица, дом, квартира)"
+                                    th:value="${user.address}">г. Москва, ул. Примерная, д. 123</textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Сохранить адрес
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="toggleAddressForm()">
+                                <i class="fas fa-times"></i> Отмена
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function toggleAddressForm() {
+        const form = document.getElementById('addressForm');
+        const isVisible = form.style.display === 'block';
+
+        form.style.display = isVisible ? 'none' : 'block';
+
+        // Прокрутка к форме при открытии
+        if (!isVisible) {
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    // Автоматически показываем форму если есть ошибка
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorMessage = document.querySelector('.alert-error');
+        if (errorMessage) {
+            toggleAddressForm();
+        }
+
+        // Автоматически скрываем уведомления через 5 секунд
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    });
+</script>
+
+<!-- Добавляем Font Awesome для иконок -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 </body>
 </html>
