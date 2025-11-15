@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ProductService {//TODO: Сортировка по цене,категории
+public class ProductService {
 
     private final ProductRepository productRepository;
 
@@ -33,12 +33,24 @@ public class ProductService {//TODO: Сортировка по цене,кате
         return products;
     }
 
+    public List<Product> getProductsBySeller(Long sellerId) {
+        return productRepository.findBySellerId(sellerId);
+    }
+
     public Product getById(Long id) {
         return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
     }
 
+    public List<Product> getProductsByCategory(Product.Category category) {
+        return productRepository.findProductByCategory(category);
+    }
+
+    public List<Product> getAvailableProducts(){
+        return productRepository.findByCountGreaterThan(0);
+    }
+
     public List<Product> searchProducts(String query){
-        return findAll().stream().filter(product -> product.getName().contains(query)).collect(Collectors.toList());
+        return getAvailableProducts().stream().filter(product -> product.getName().contains(query)).collect(Collectors.toList());
     }
 
     public List<Product> findAll() {
@@ -59,6 +71,7 @@ public class ProductService {//TODO: Сортировка по цене,кате
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
         Product updatedProduct = new Product(
                 product.getId(),
+                productToUpdate.getSeller(),
                 productToUpdate.getName(),
                 productToUpdate.getPrice(),
                 productToUpdate.getCount(),

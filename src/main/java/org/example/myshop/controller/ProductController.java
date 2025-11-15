@@ -8,12 +8,15 @@ import org.example.myshop.service.ProductService;
 import org.example.myshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/product")
@@ -30,14 +33,33 @@ public class ProductController {
     }
 
     @GetMapping("/catalog")
-    public String CatalogPage(Model model) {
-        List<Product> products = productService.findAll();
-        model.addAttribute("products", products);
+    public String CatalogPage(@RequestParam(required = false) String category, Model model) {
+        List<Product> products;
+
+        if (category != null && !category.isEmpty()) {
+            try {
+                Product.Category productCategory = Product.Category.valueOf(category.toUpperCase());
+                products = productService.getProductsByCategory(productCategory);
+                model.addAttribute("selectedCategory", productCategory);
+            } catch (IllegalArgumentException e) {
+                products = productService.getAvailableProducts();
+                model.addAttribute("errorMessage", "Категория не найдена");
+            }
+        } else {
+            products = productService.getAvailableProducts();
+        }
+
+        List<Product> availableProducts  = products.stream()
+                .filter(product -> product.getCount() > 0)
+                .collect(Collectors.toList());
+
+        model.addAttribute("products", availableProducts );
+        model.addAttribute("categories", Product.Category.values());
         return "catalog";
     }
 
     @PostMapping("/catalog/add")
-    public String addProductToCart(@RequestParam Long productId) {//TODO многопоточность + проверки + если есть уже товар такой то просто добавлять 1
+    public String addProductToCart(@RequestParam Long productId) {//TODO многопоточность + проверки
         User user = userService.getCurrentUser();
         Cart cart = cartService.getCartByUserId(user.getId());
         cartService.cartAddProduct(cart.getId(),productId);
@@ -50,4 +72,6 @@ public class ProductController {
         model.addAttribute("product", product);
         return "product-detail";
     }
+
+
 }

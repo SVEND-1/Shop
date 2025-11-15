@@ -11,12 +11,16 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "products") // исправлено на множественное число
+@Table(name = "products")
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne()
+    @JoinColumn(name = "seller_id")
+    private User seller;
 
     @Column(name = "name")
     private String name;
@@ -43,7 +47,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> cartItems = new ArrayList<>();
 
-    public Product(Long id, String name, Double price, int count, String description, String image, Category category, List<OrderItem> orderItems, List<CartItem> cartItems) {
+    public Product(Long id,User seller, String name, Double price, int count, String description, String image, Category category, List<OrderItem> orderItems, List<CartItem> cartItems) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -55,7 +59,7 @@ public class Product {
         this.cartItems = cartItems;
     }
 
-    public Product(String name, Double price, int count, String description, String image, Category category) {
+    public Product(User seller,String name, Double price, int count, String description, String image, Category category) {
         this.name = name;
         this.price = price;
         this.count = count;
@@ -74,6 +78,14 @@ public class Product {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getSeller() {
+        return seller;
+    }
+
+    public void setSeller(User seller) {
+        this.seller = seller;
     }
 
     public String getName() {

@@ -12,12 +12,81 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
+
+        /* Стили для фильтров */
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .filters-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .categories-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid #3498db;
+            border-radius: 20px;
+            background: white;
+            color: #3498db;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .category-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .category-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .filter-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .reset-filter {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: 500;
+        }
+
+        .reset-filter:hover {
+            background: #c0392b;
+        }
+
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
             margin-top: 20px;
         }
+
         .product-card {
             background: white;
             border: 1px solid #ddd;
@@ -29,10 +98,12 @@
             cursor: pointer;
             position: relative;
         }
+
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
+
         .product-image {
             width: 100%;
             height: 200px;
@@ -40,23 +111,27 @@
             border-radius: 8px;
             margin-bottom: 15px;
         }
+
         .product-name {
             font-weight: bold;
             font-size: 1.2em;
             margin: 10px 0;
             color: #333;
         }
+
         .product-price {
             color: #e74c3c;
             font-size: 1.3em;
             font-weight: bold;
             margin: 10px 0;
         }
+
         .product-count {
             color: #27ae60;
             font-weight: bold;
             margin: 5px 0;
         }
+
         .product-category {
             display: inline-block;
             background: #3498db;
@@ -66,6 +141,7 @@
             font-size: 0.9em;
             margin: 5px 0;
         }
+
         .product-description {
             color: #666;
             margin: 10px 0;
@@ -75,9 +151,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
         .out-of-stock {
             opacity: 0.7;
         }
+
         .out-of-stock-badge {
             background: #e74c3c;
             color: white;
@@ -85,6 +163,7 @@
             border-radius: 5px;
             font-weight: bold;
         }
+
         .no-image {
             background: #f8f9fa;
             display: flex;
@@ -93,6 +172,7 @@
             color: #6c757d;
             font-size: 14px;
         }
+
         .add-to-cart-btn {
             background: #28a745;
             color: white;
@@ -106,13 +186,16 @@
             margin-top: 15px;
             width: 100%;
         }
+
         .add-to-cart-btn:hover {
             background: #218838;
         }
+
         .add-to-cart-btn:disabled {
             background: #6c757d;
             cursor: not-allowed;
         }
+
         .product-link {
             position: absolute;
             top: 0;
@@ -121,19 +204,85 @@
             bottom: 0;
             z-index: 1;
         }
+
         .cart-form {
             position: relative;
             z-index: 2;
+        }
+
+        .no-products {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border-radius: 10px;
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .categories-filter {
+                justify-content: center;
+            }
+
+            .category-btn {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
 <h1>Каталог товаров</h1>
 
-<div class="products-grid">
+<!-- Фильтр по категориям -->
+<div class="filters-section">
+    <div class="filters-title">Фильтр по категориям:</div>
+
+    <div class="categories-filter">
+        <button class="category-btn active" onclick="filterByCategory('ALL')">
+            Все товары
+        </button>
+        <button class="category-btn" onclick="filterByCategory('ELECTRONICS')">
+            Электроника
+        </button>
+        <button class="category-btn" onclick="filterByCategory('CLOTHING')">
+            Одежда
+        </button>
+        <button class="category-btn" onclick="filterByCategory('BOOKS')">
+            Книги
+        </button>
+        <button class="category-btn" onclick="filterByCategory('FOOD')">
+            Еда
+        </button>
+        <button class="category-btn" onclick="filterByCategory('SPORTS')">
+            Спорт товары
+        </button>
+        <button class="category-btn" onclick="filterByCategory('HOME')">
+            Товары для дома
+        </button>
+        <button class="category-btn" onclick="filterByCategory('BEAUTY')">
+            Красота
+        </button>
+        <button class="category-btn" onclick="filterByCategory('OTHER')">
+            Другое
+        </button>
+    </div>
+
+    <div class="filter-info">
+        <span id="filterStatus">Показаны все товары</span>
+        <button class="reset-filter" onclick="resetFilter()" style="display: none;">
+            Сбросить фильтр
+        </button>
+    </div>
+</div>
+
+<!-- Сетка товаров -->
+<div class="products-grid" id="productsGrid">
     <div th:each="product : ${products}"
          class="product-card"
          th:classappend="${product.count == 0} ? 'out-of-stock'"
+         th:data-category="${product.category}"
          onclick="location.href='/product/' + ${product.id}">
 
         <!-- Кликабельная область -->
@@ -186,7 +335,97 @@
     </div>
 </div>
 
+<!-- Сообщение когда товаров нет -->
+<div class="no-products" id="noProductsMessage" style="display: none;">
+    <h3>Товары не найдены</h3>
+    <p>Попробуйте выбрать другую категорию или сбросить фильтр</p>
+    <button class="reset-filter" onclick="resetFilter()">
+        Показать все товары
+    </button>
+</div>
+
 <iframe name="hiddenFrame" style="display: none;"></iframe>
+
+<script>
+    let currentCategory = 'ALL';
+
+    function filterByCategory(category) {
+        // Обновляем активную кнопку
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        currentCategory = category;
+
+        // Показываем/скрываем товары
+        const productCards = document.querySelectorAll('.product-card');
+        let visibleCount = 0;
+
+        productCards.forEach(card => {
+            const productCategory = card.getAttribute('data-category');
+
+            if (category === 'ALL' || productCategory === category) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Обновляем информацию о фильтре
+        updateFilterInfo(category, visibleCount);
+
+        // Показываем/скрываем сообщение "нет товаров"
+        const noProductsMessage = document.getElementById('noProductsMessage');
+        const resetBtn = document.querySelector('.reset-filter');
+
+        if (visibleCount === 0) {
+            noProductsMessage.style.display = 'block';
+        } else {
+            noProductsMessage.style.display = 'none';
+        }
+
+        // Показываем кнопку сброса если фильтр активен
+        if (category !== 'ALL') {
+            resetBtn.style.display = 'inline-block';
+        } else {
+            resetBtn.style.display = 'none';
+        }
+    }
+
+    function updateFilterInfo(category, count) {
+        const filterStatus = document.getElementById('filterStatus');
+        const categoryNames = {
+            'ALL': 'все товары',
+            'ELECTRONICS': 'Электроника',
+            'CLOTHING': 'Одежда',
+            'BOOKS': 'Книги',
+            'FOOD': 'Еда',
+            'SPORTS': 'Спорт товары',
+            'HOME': 'Товары для дома',
+            'BEAUTY': 'Красота',
+            'OTHER': 'Другое'
+        };
+
+        if (category === 'ALL') {
+            filterStatus.textContent = `Показаны все товары (${count} шт.)`;
+        } else {
+            filterStatus.textContent = `Категория: ${categoryNames[category]} (${count} товаров)`;
+        }
+    }
+
+    function resetFilter() {
+        filterByCategory('ALL');
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Показываем общее количество товаров
+        const totalProducts = document.querySelectorAll('.product-card').length;
+        updateFilterInfo('ALL', totalProducts);
+    });
+</script>
 
 </body>
 </html>

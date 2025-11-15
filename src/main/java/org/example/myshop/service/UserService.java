@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.relation.RoleInfoNotFoundException;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -43,9 +44,44 @@ public class UserService {
 
     public User appoint(Long userId, User.Role role) {
         User user = getById(userId);
+        if(User.Role.COURIER.equals(role)) {
+            if(user.getRole().equals(User.Role.ADMIN) ||
+                    user.getRole().equals(User.Role.SELLER)) {
+                throw new IllegalArgumentException(
+                        "Нельзя назначить курьером пользователя с ролью: " + user.getRole()
+                );
+            }
+        }
+        if(User.Role.SELLER.equals(role)) {
+            if(user.getRole().equals(User.Role.ADMIN) ||
+                    user.getRole().equals(User.Role.COURIER)) {
+                throw new IllegalArgumentException(
+                        "Нельзя назначить продавцом пользователя с ролью: " + user.getRole()
+                );
+            }
+        }
         user.setRole(role);
         return userRepository.save(user);
     }
+
+    public User downgrade(Long userId, User.Role role) {
+        User user = getById(userId);
+
+        if (!user.getRole().equals(role)) {
+            throw new IllegalArgumentException(
+                    "Нельзя забрать роль " + role + " у пользователя с ролью: " + user.getRole()
+            );
+        }
+
+        user.setRole(User.Role.USER);
+        return userRepository.save(user);
+    }
+
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
+
 
     public User getByEmail(String email) {
         return userRepository.findByEmailEqualsIgnoreCase(email);

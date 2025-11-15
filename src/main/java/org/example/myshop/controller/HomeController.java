@@ -32,7 +32,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String homePage(Model model) {
-        List<Product> featuredProducts = productService.findAll()
+        List<Product> featuredProducts = productService.getAvailableProducts()
                 .stream()
                 .limit(50)
                 .collect(Collectors.toList());
