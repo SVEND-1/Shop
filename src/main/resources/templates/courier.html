@@ -170,11 +170,11 @@
             letter-spacing: 0.5px;
         }
 
-        .status-new { background: #ffeaa7; color: #e17055; }
-        .status-assigned { background: #74b9ff; color: #0984e3; }
-        .status-picked { background: #a29bfe; color: #6c5ce7; }
-        .status-delivery { background: #fd79a8; color: #e84393; }
-        .status-delivered { background: #55efc4; color: #00b894; }
+        .status-pending { background: #ffeaa7; color: #e17055; }
+        .status-dispatched { background: #74b9ff; color: #0984e3; }
+        .status-delivered_to_destination { background: #55efc4; color: #00b894; }
+        .status-cancelled { background: #dfe6e9; color: #636e72; }
+        .status-returned { background: #fd79a8; color: #e84393; }
 
         .order-info {
             margin-bottom: 20px;
@@ -247,6 +247,11 @@
             color: white;
         }
 
+        .btn-danger {
+            background: linear-gradient(135deg, #e17055, #ff7675);
+            color: white;
+        }
+
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -276,6 +281,84 @@
             border-radius: 15px;
             font-size: 0.8em;
             margin-left: 10px;
+        }
+
+        /* Стили для уведомлений */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideInRight 0.5s ease-out;
+            color: white;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #00b894;
+        }
+
+        .alert-error {
+            background: #e17055;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .status-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .status-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-option:hover {
+            background: #f8f9fa;
+            border-color: #0984e3;
+        }
+
+        .status-option input[type="radio"] {
+            margin: 0;
+        }
+
+        .status-label {
+            font-weight: 500;
+            color: #2d3436;
+        }
+
+        .status-description {
+            font-size: 0.8em;
+            color: #636e72;
         }
 
         @media (max-width: 768px) {
@@ -309,6 +392,17 @@
 </head>
 <body>
 <div class="app-container">
+    <!-- Уведомления -->
+    <div th:if="${success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${error}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
     <!-- Шапка с информацией о курьере -->
     <div class="header">
         <div class="user-info">
@@ -323,7 +417,7 @@
         <div class="stats">
             <div class="stat-item">
                 <div class="stat-number" th:text="${assignedOrders?.size()} ?: 0">0</div>
-                <div class="stat-label">Активные</div>
+                <div class="stat-label">Мои заказы</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" th:text="${availableOrders?.size()} ?: 0">0</div>
@@ -353,7 +447,7 @@
     </div>
 
     <!-- Все заказы -->
-    <div id="all-tab" class="tab-content">
+    <div id="all-tab" class="tab-content active">
         <div class="orders-grid">
             <div th:each="order : ${allOrders}" class="order-card">
                 <div class="order-header">
@@ -384,36 +478,20 @@
                     </div>
                 </div>
 
-                <div class="actions">
-                    <!-- Для заказов без курьера -->
-                    <form th:if="${order?.courier == null}" th:action="@{/courier/orders/{id}/assign(id=${order.id})}" method="post" style="flex: 1;">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-hand-paper"></i> Взять заказ
-                        </button>
-                    </form>
+                <!-- Список товаров -->
+                <div th:if="${order?.orderItems != null and !order.orderItems.isEmpty()}" class="products-list">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #2d3436;">Товары:</div>
+                    <div th:each="item : ${order.orderItems}" class="product-item">
+                        <span class="item-name" th:text="${item.product?.name}">Название товара</span>
+                        <span class="item-quantity" th:text="'× ' + ${item.quantity}">× 2</span>
+                    </div>
+                </div>
 
-                    <!-- Для заказов текущего курьера -->
-                    <div th:if="${order?.courier != null and order.courier.id == courier.id}" style="display: contents;">
-                        <form th:if="${order.status.name() == 'ASSIGNED_TO_COURIER'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post" style="flex: 1;">
-                            <input type="hidden" name="status" value="PICKED_UP">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-check"></i> Получил товар
-                            </button>
-                        </form>
-
-                        <form th:if="${order.status.name() == 'PICKED_UP'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post" style="flex: 1;">
-                            <input type="hidden" name="status" value="IN_DELIVERY">
-                            <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-shipping-fast"></i> Начать доставку
-                            </button>
-                        </form>
-
-                        <form th:if="${order.status.name() == 'IN_DELIVERY'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post" style="flex: 1;">
-                            <input type="hidden" name="status" value="DELIVERED">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-flag-checkered"></i> Завершить
-                            </button>
-                        </form>
+                <!-- Информация о курьере для чужих заказов -->
+                <div th:if="${order?.courier != null and order?.courier?.id != courier?.id}" style="margin-top: 15px;">
+                    <div style="text-align: center; color: #636e72; font-size: 0.9em; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <i class="fas fa-user"></i>
+                        Курьер: <span th:text="${order?.courier?.name}">Другой курьер</span>
                     </div>
                 </div>
             </div>
@@ -427,7 +505,7 @@
     </div>
 
     <!-- Мои заказы -->
-    <div id="my-tab" class="tab-content" style="display: none;">
+    <div id="my-tab" class="tab-content">
         <div class="orders-grid">
             <div th:each="order : ${assignedOrders}" class="order-card">
                 <div class="order-header">
@@ -448,29 +526,68 @@
                         <i class="fas fa-map-marker-alt"></i>
                         <span th:text="${order?.shippingAddress} ?: 'Адрес не указан'">ул. Примерная, 15</span>
                     </div>
+                    <div class="info-row">
+                        <i class="fas fa-phone"></i>
+                        <span th:text="${order?.user?.email} ?: 'Email не указан'">gmail@gmail.ru</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="fas fa-ruble-sign"></i>
+                        <span th:text="${order?.totalAmount != null ? (#numbers.formatDecimal(order.totalAmount, 1, 2) + ' руб.') : 'Сумма не указана'}">2 500 руб.</span>
+                    </div>
                 </div>
 
-                <div class="actions">
-                    <form th:if="${order.status.name() == 'ASSIGNED_TO_COURIER'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post" style="flex: 1;">
-                        <input type="hidden" name="status" value="PICKED_UP">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-check"></i> Получил товар
+                <!-- Список товаров -->
+                <div th:if="${order?.orderItems != null and !order.orderItems.isEmpty()}" class="products-list">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #2d3436;">Товары:</div>
+                    <div th:each="item : ${order.orderItems}" class="product-item">
+                        <span class="item-name" th:text="${item.product?.name}">Название товара</span>
+                        <span class="item-quantity" th:text="'× ' + ${item.quantity}">× 2</span>
+                    </div>
+                </div>
+
+                <!-- Селектор статусов для активных заказов -->
+                <div th:if="${order?.status?.name() == 'PENDING' or order?.status?.name() == 'DISPATCHED'}" class="status-selector">
+                    <h4 style="margin-bottom: 15px; color: #2d3436;">Изменить статус:</h4>
+
+                    <!-- DISPATCHED - в доставке -->
+                    <form th:if="${order?.status?.name() == 'PENDING'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post">
+                        <input type="hidden" name="status" value="DISPATCHED">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-shipping-fast"></i> Начать доставку
                         </button>
                     </form>
 
-                    <form th:if="${order.status.name() == 'PICKED_UP'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post" style="flex: 1;">
-                        <input type="hidden" name="status" value="IN_DELIVERY">
+                    <!-- DELIVERED_TO_DESTINATION - доставлен -->
+                    <form th:if="${order?.status?.name() == 'DISPATCHED'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post">
+                        <input type="hidden" name="status" value="DELIVERED_TO_DESTINATION">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle"></i> Доставлен
+                        </button>
+                    </form>
+
+                    <!-- RETURNED - возвращен -->
+                    <form th:if="${order?.status?.name() == 'DISPATCHED'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post">
+                        <input type="hidden" name="status" value="RETURNED">
                         <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-shipping-fast"></i> В путь
+                            <i class="fas fa-undo"></i> Вернуть заказ
                         </button>
                     </form>
 
-                    <form th:if="${order.status.name() == 'IN_DELIVERY'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post" style="flex: 1;">
-                        <input type="hidden" name="status" value="DELIVERED">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-flag-checkered"></i> Доставил
+                    <!-- CANCELLED - отменен -->
+                    <form th:if="${order?.status?.name() == 'PENDING' or order?.status?.name() == 'DISPATCHED'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post">
+                        <input type="hidden" name="status" value="CANCELLED">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите отменить заказ?')">
+                            <i class="fas fa-times-circle"></i> Отменить заказ
                         </button>
                     </form>
+                </div>
+
+                <!-- Для завершенных заказов -->
+                <div th:if="${order?.status?.name() == 'DELIVERED_TO_DESTINATION' or order?.status?.name() == 'RETURNED' or order?.status?.name() == 'CANCELLED'}" style="margin-top: 15px;">
+                    <div style="text-align: center; color: #636e72; font-size: 0.9em; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <i class="fas fa-check-circle"></i>
+                        Заказ завершен
+                    </div>
                 </div>
             </div>
         </div>
@@ -483,15 +600,15 @@
     </div>
 
     <!-- Доступные заказы -->
-    <div id="available-tab" class="tab-content" style="display: none;">
+    <div id="available-tab" class="tab-content">
         <div class="orders-grid">
             <div th:each="order : ${availableOrders}" class="order-card">
                 <div class="order-header">
                     <div class="order-id">
                         <i class="fas fa-box"></i> Заказ #<span th:text="${order?.id}">123</span>
                     </div>
-                    <div class="order-status status-new">
-                        <span>Доступен</span>
+                    <div class="order-status status-pending">
+                        <span>Ожидает курьера</span>
                     </div>
                 </div>
 
@@ -505,8 +622,21 @@
                         <span th:text="${order?.shippingAddress} ?: 'Адрес не указан'">ул. Примерная, 15</span>
                     </div>
                     <div class="info-row">
+                        <i class="fas fa-phone"></i>
+                        <span th:text="${order?.user?.email} ?: 'Email не указан'">gmail@gmail.ru</span>
+                    </div>
+                    <div class="info-row">
                         <i class="fas fa-ruble-sign"></i>
                         <span th:text="${order?.totalAmount != null ? (#numbers.formatDecimal(order.totalAmount, 1, 2) + ' руб.') : 'Сумма не указана'}">2 500 руб.</span>
+                    </div>
+                </div>
+
+                <!-- Список товаров -->
+                <div th:if="${order?.orderItems != null and !order.orderItems.isEmpty()}" class="products-list">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #2d3436;">Товары:</div>
+                    <div th:each="item : ${order.orderItems}" class="product-item">
+                        <span class="item-name" th:text="${item.product?.name}">Название товара</span>
+                        <span class="item-quantity" th:text="'× ' + ${item.quantity}">× 2</span>
                     </div>
                 </div>
 
@@ -532,11 +662,11 @@
     function showTab(tabName) {
         // Скрыть все вкладки
         document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.style.display = 'none';
+            tab.classList.remove('active');
         });
 
         // Показать выбранную вкладку
-        document.getElementById(tabName + '-tab').style.display = 'block';
+        document.getElementById(tabName + '-tab').classList.add('active');
 
         // Обновить активную кнопку
         document.querySelectorAll('.tab').forEach(tab => {
@@ -550,7 +680,18 @@
         window.location.reload();
     }, 30000);
 
-    // Плавная анимация появления
+    // Автоскрытие уведомлений через 5 секунд
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.transition = 'all 0.5s ease';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateX(100%)';
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 5000);
+
+    // Плавная анимация появления карточек
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.order-card').forEach((card, index) => {
             card.style.animationDelay = `${index * 0.1}s`;

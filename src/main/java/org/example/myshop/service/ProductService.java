@@ -63,6 +63,13 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    public Product productAddQuantity(Long productId, int quantity) {
+        Product product = getById(productId);
+        product.setCount(product.getCount() + quantity);
+        return productRepository.save(product);
+    }
+
+
     public Product create(Product productToCreate) {
         return productRepository.save(productToCreate);
     }

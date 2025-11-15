@@ -43,9 +43,9 @@ public class HomeController {
 
     @GetMapping("/home/search")
     public String search(@RequestParam String query, Model model) {
-        List<Product> searchResults = productService.searchProducts(query);
+        List<Product> searchResults = productService.searchProducts(query.trim().toLowerCase());
         model.addAttribute("products", searchResults);
-        model.addAttribute("searchQuery", query);
+        model.addAttribute("searchQuery", query.trim().toLowerCase());
         return "catalog";
     }
 

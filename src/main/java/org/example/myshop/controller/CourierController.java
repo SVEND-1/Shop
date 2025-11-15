@@ -1,5 +1,6 @@
 package org.example.myshop.controller;
 
+import org.aspectj.weaver.ast.Or;
 import org.example.myshop.entity.Order;
 import org.example.myshop.entity.User;
 import org.example.myshop.service.OrderService;
@@ -7,10 +8,7 @@ import org.example.myshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -61,7 +59,7 @@ public class CourierController {
     }
 
     @PostMapping("/orders/{id}/assign")
-    public String assignOrder(@PathVariable Long id) {
+    public String assignOrder(@PathVariable Long id) {//Проверить что у курьера нету активыных заказов
         User courier = userService.getCurrentUser();
         Order order = orderService.getById(id);
         order.setCourier(courier);
@@ -69,4 +67,10 @@ public class CourierController {
         return "redirect:/courier";
     }
 
+    @PostMapping("/orders/{id}/status")
+    public String setStatus(@PathVariable Long id, @RequestParam("status") Order.OrderStatus status) {
+        Order order = orderService.getById(id);
+        orderService.setStatus(order, status);
+        return "redirect:/courier";
+    }
 }

@@ -126,6 +126,7 @@ public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТ
     }
 
     public enum OrderStatus {
+        //PENDING, , DISPATCHED, DELIVERED_TO_DESTINATION, CANCELLED, RETURNED;
         PENDING, CONFIRMED, PROCESSING,AWAITING_COURIER, DISPATCHED, DELIVERED_TO_DESTINATION, CANCELLED, RETURNED;
         public SimpleGrantedAuthority toAuthority() {
             return new SimpleGrantedAuthority("ROLE_" + this.name());

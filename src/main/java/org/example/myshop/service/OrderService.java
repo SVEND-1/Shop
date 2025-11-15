@@ -43,6 +43,21 @@ public class OrderService {
         return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
     }
 
+    public Order setStatus(Order order, Order.OrderStatus status) {
+        if(status == Order.OrderStatus.CANCELLED) {
+            order.setCourier(null);
+            status = Order.OrderStatus.PENDING;
+        }
+        if(status == Order.OrderStatus.RETURNED) {
+            List<OrderItem> orderItems = order.getOrderItems();
+            for(OrderItem orderItem : orderItems) {
+                productService.productAddQuantity(orderItem.getProduct().getId(),orderItem.getQuantity());
+            }
+        }
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
     public List<Order> getOrdersByUserId(Long userId) {
         return orderRepository.findOrderByUserId(userId);
     }

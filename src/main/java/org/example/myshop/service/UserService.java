@@ -2,7 +2,6 @@ package org.example.myshop.service;
 
 import org.example.myshop.entity.Order;
 import org.example.myshop.entity.User;
-import org.example.myshop.repository.OrderRepository;
 import org.example.myshop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,11 +9,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.management.relation.RoleInfoNotFoundException;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -87,9 +84,6 @@ public class UserService {
         return userRepository.findByEmailEqualsIgnoreCase(email);
     }
 
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
-    }
 
     public User create(User userToCreate) {
         try {
