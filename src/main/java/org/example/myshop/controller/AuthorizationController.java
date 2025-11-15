@@ -147,14 +147,11 @@ public class AuthorizationController {
         try {
             User user = userService.getByEmail(email);
             if (user != null) {
-                // Генерируем код для восстановления пароля
                 String resetCode = emailSenderService.generateVerificationCode();
 
-                // Сохраняем в сессию
                 session.setAttribute("resetEmail", email);
                 session.setAttribute("resetCode", resetCode);
 
-                // Отправляем email с кодом в отдельном потоке
                 new Thread(() -> {
                     emailSenderService.sendPasswordResetEmail(email, resetCode);
                 }).start();
@@ -177,7 +174,6 @@ public class AuthorizationController {
         return "email-reset";
     }
 
-    // Подтверждение кода для сброса пароля
     @PostMapping("/verify-reset-code")
     public String verifyResetCode(@RequestParam String code,
                                   HttpSession session,
@@ -228,7 +224,6 @@ public class AuthorizationController {
             user.setPassword(passwordEncoder.encode(newPassword));
             userService.update(user.getId(), user);
 
-            // Очищаем сессию
             session.removeAttribute("resetEmail");
             session.removeAttribute("resetCode");
 
