@@ -10,14 +10,13 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТАТУСА
-//TODO Добавить курьера
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -31,10 +30,10 @@ public class Order {//TODO ДОБАВИТЬ НОРМАЛЬНУЮ СМЕНУ СТ
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
 
-    @Column(name = "shipping_address", length = 500)
+    @Column(name = "shipping_address")
     private String shippingAddress;
 
-    @Column(name = "total_amount")
+    @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

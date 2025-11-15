@@ -44,8 +44,7 @@ public class SellerController {
 
     @PostMapping("/add")
     public String addProduct(@ModelAttribute Product product,
-                             @RequestParam("imageFile") MultipartFile imageFile,
-                             RedirectAttributes redirectAttributes) {
+                             @RequestParam("imageFile") MultipartFile imageFile) {
         try {
             User seller = userService.getCurrentUser();
 
@@ -57,11 +56,10 @@ public class SellerController {
             product.setSeller(seller);
             productService.create(product);
 
-            redirectAttributes.addFlashAttribute("success", "Товар успешно добавлен!");
+            return "redirect:/seller";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Ошибка: " + e.getMessage());
+            return "redirect:/seller";
         }
-        return "redirect:/seller";
     }
 
     @PostMapping("/update")
@@ -71,45 +69,44 @@ public class SellerController {
                                 @RequestParam Integer count,
                                 @RequestParam(required = false) String description,
                                 @RequestParam Product.Category category,
-                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
-                                RedirectAttributes redirectAttributes) {
+                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
         try {
             Product existingProduct = productService.getById(id);
 
             if (existingProduct == null) {
-                redirectAttributes.addFlashAttribute("error", "Товар не найден");
                 return "redirect:/seller";
             }
 
-            existingProduct.setName(name);
-            existingProduct.setPrice(price);
-            existingProduct.setCount(count);
-            existingProduct.setDescription(description);
-            existingProduct.setCategory(category);
+            Product productToUpdate = new Product();
+            productToUpdate.setName(name);
+            productToUpdate.setPrice(price);
+            productToUpdate.setCount(count);
+            productToUpdate.setDescription(description);
+            productToUpdate.setCategory(category);
 
             if (imageFile != null && !imageFile.isEmpty()) {
                 String imageName = saveImage(imageFile);
-                existingProduct.setImage(imageName);
+                productToUpdate.setImage(imageName);
+            } else {
+                productToUpdate.setImage(existingProduct.getImage());
             }
 
-            productService.update(existingProduct.getId(),existingProduct);
-            redirectAttributes.addFlashAttribute("success", "Товар обновлен!");
+            productService.update(id, productToUpdate);
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Ошибка обновления: " + e.getMessage());
+            e.printStackTrace();
         }
         return "redirect:/seller";
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteProduct(@PathVariable Long id) {
         try {
             productService.deleted(id);
-            redirectAttributes.addFlashAttribute("success", "Товар удален!");
+            return "redirect:/seller";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Ошибка удаления: " + e.getMessage());
+            return "redirect:/seller";
         }
-        return "redirect:/seller";
     }
 
     private String saveImage(MultipartFile imageFile) throws IOException {

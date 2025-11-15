@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
@@ -32,11 +31,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String homePage(Model model) {
-        List<Product> featuredProducts = productService.getAvailableProducts()
-                .stream()
-                .limit(50)
-                .collect(Collectors.toList());
-
+        List<Product> featuredProducts = productService.find48Product();
         model.addAttribute("featuredProducts", featuredProducts);
         return "index";
     }

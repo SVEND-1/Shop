@@ -46,7 +46,7 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public String createOrder() {//TODO ПРОВЕРИТЬ ЧТО ТОВАРЫ ЕСТЬ В НАЛИЧИИ
+    public String createOrder() {
         User user = userService.getCurrentUser();
         orderService.createOrderFromCart(user.getId());
         return "redirect:/cart";

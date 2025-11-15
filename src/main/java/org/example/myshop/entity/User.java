@@ -18,23 +18,24 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false,length = 128)
     private String email;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, length = 64)
     private String name;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false, length = 64)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     private Role role;
 
     @Column(name = "address")
     private String address;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "orders", nullable = false)
     private List<Order> orders = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

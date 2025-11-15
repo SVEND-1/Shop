@@ -28,9 +28,16 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Page<Product> findProductsWithPagination(int offset, int limit) {
-        Page<Product> products = productRepository.findAll(PageRequest.of(offset,limit));//Можно добавить сортировку
-        return products;
+    public Page<Product> getAvailableProductsWithPagination(int page, int size) {
+        return productRepository.findByCountGreaterThan(0, PageRequest.of(page, size));
+    }
+
+    public Page<Product> getProductsByCategoryWithPagination(Product.Category category, int page, int size) {
+        return productRepository.findByCategoryAndCountGreaterThan(category, 0, PageRequest.of(page, size));
+    }
+
+    public List<Product> find48Product(){
+        return productRepository.findTop48ByCountGreaterThan(0);
     }
 
     public List<Product> getProductsBySeller(Long sellerId) {
@@ -41,20 +48,12 @@ public class ProductService {
         return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
     }
 
-    public List<Product> getProductsByCategory(Product.Category category) {
-        return productRepository.findProductByCategory(category);
-    }
-
     public List<Product> getAvailableProducts(){
         return productRepository.findByCountGreaterThan(0);
     }
 
     public List<Product> searchProducts(String query){
         return getAvailableProducts().stream().filter(product -> product.getName().contains(query)).collect(Collectors.toList());
-    }
-
-    public List<Product> findAll() {
-        return productRepository.findAll();
     }
 
     public Product productSubtractQuantity(Long productId, int quantity) {
@@ -75,19 +74,20 @@ public class ProductService {
     }
 
     public Product update(Long id, Product productToUpdate) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
-        Product updatedProduct = new Product(
-                product.getId(),
-                productToUpdate.getSeller(),
-                productToUpdate.getName(),
-                productToUpdate.getPrice(),
-                productToUpdate.getCount(),
-                productToUpdate.getDescription(),
-                productToUpdate.getImage(),
-                productToUpdate.getCategory(),
-                productToUpdate.getOrderItems(),
-                productToUpdate.getCartItems());
-        return productRepository.save(updatedProduct);
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Продукт не найден"));
+
+        existingProduct.setName(productToUpdate.getName());
+        existingProduct.setPrice(productToUpdate.getPrice());
+        existingProduct.setCount(productToUpdate.getCount());
+        existingProduct.setDescription(productToUpdate.getDescription());
+        existingProduct.setCategory(productToUpdate.getCategory());
+
+        if (productToUpdate.getImage() != null && !productToUpdate.getImage().isEmpty()) {
+            existingProduct.setImage(productToUpdate.getImage());
+        }
+
+        return productRepository.save(existingProduct);
     }
 
     public void deleted(Long id) {

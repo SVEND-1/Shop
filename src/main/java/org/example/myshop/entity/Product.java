@@ -19,22 +19,22 @@ public class Product {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name = "seller_id")
+    @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private Double price;
 
-    @Column(name = "count")
+    @Column(name = "count", nullable = false)
     private int count;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "image")
+    @Column(name = "image", nullable = false)
     private String image;
 
     @Enumerated(EnumType.STRING)

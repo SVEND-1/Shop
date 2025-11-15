@@ -78,12 +78,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
-
-
     public User getByEmail(String email) {
         return userRepository.findByEmailEqualsIgnoreCase(email);
     }
-
 
     public User create(User userToCreate) {
         try {
@@ -102,34 +99,8 @@ public class UserService {
                 userToUpdate.getPassword(),
                 userToUpdate.getRole(),
                 userToUpdate.getAddress(),
-                userToUpdate.getOrders(),
-                userToUpdate.getCart());
+                user.getOrders(),
+                user.getCart());
         return userRepository.save(updatedUser);
-    }
-
-    public void deleted(Long id) {
-        if(!userRepository.existsById(id)){
-            throw new NoSuchElementException("Пользователь не найден");
-        }
-        userRepository.deleteById(id);
-    }
-
-    public User userAddOrder(User user, Order order) {
-        user.addOrderItem(order);
-        return userRepository.save(user);
-    }
-
-    public User userAddOrder(Long userId, Long orderId) {
-        User user = getById(userId);
-        Order order = orderService.getById(orderId);
-        user.addOrderItem(order);
-        return userRepository.save(user);
-    }
-
-    public User userRemoveOrder(Long userId, Long orderId) {
-        User user = getById(userId);
-        Order order = orderService.getById(orderId);
-        user.removeOrderItem(order);
-        return userRepository.save(user);
     }
 }

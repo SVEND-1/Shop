@@ -73,7 +73,11 @@ public class AuthorizationController {
                                HttpSession session,
                                RedirectAttributes redirectAttributes) {
         try {
-            String verificationCode = emailSenderService.sendVerification(email);
+            String verificationCode = emailSenderService.generateVerificationCode();
+
+            new Thread(() -> {
+                emailSenderService.sendVerification(email,verificationCode);
+            }).start();
 
             session.setAttribute("pendingName", name);
             session.setAttribute("pendingEmail", email);
@@ -140,14 +144,65 @@ public class AuthorizationController {
     public String forgotPasswordUser(@RequestParam String email,
                                      HttpSession session,
                                      RedirectAttributes redirectAttributes) {
-        User user = userService.getByEmail(email);
-        if (user != null) {
-            session.setAttribute("resetEmail", email);
-            redirectAttributes.addFlashAttribute("message", "Инструкции по сбросу пароля отправлены на email");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Пользователь с таким email не найден");
+        try {
+            User user = userService.getByEmail(email);
+            if (user != null) {
+                // Генерируем код для восстановления пароля
+                String resetCode = emailSenderService.generateVerificationCode();
+
+                // Сохраняем в сессию
+                session.setAttribute("resetEmail", email);
+                session.setAttribute("resetCode", resetCode);
+
+                // Отправляем email с кодом в отдельном потоке
+                new Thread(() -> {
+                    emailSenderService.sendPasswordResetEmail(email, resetCode);
+                }).start();
+
+                redirectAttributes.addFlashAttribute("email", email);
+                redirectAttributes.addFlashAttribute("message", "Код подтверждения отправлен на ваш email");
+                return "redirect:/email-reset"; // переходим на страницу подтверждения для сброса пароля
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Пользователь с таким email не найден");
+                return "redirect:/forgot-password";
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка: " + e.getMessage());
+            return "redirect:/forgot-password";
         }
-        return "redirect:/login";
+    }
+
+    @GetMapping("/email-reset")
+    public String emailResetPage() {
+        return "email-reset";
+    }
+
+    // Подтверждение кода для сброса пароля
+    @PostMapping("/verify-reset-code")
+    public String verifyResetCode(@RequestParam String code,
+                                  HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            String email = (String) session.getAttribute("resetEmail");
+            String savedCode = (String) session.getAttribute("resetCode");
+
+            if (email == null || savedCode == null) {
+                redirectAttributes.addFlashAttribute("error", "Сессия истекла. Запросите сброс пароля снова.");
+                return "redirect:/forgot-password";
+            }
+
+            if (code.equals(savedCode)) {
+                redirectAttributes.addFlashAttribute("email", email);
+                return "redirect:/reset-password";
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Неверный код подтверждения");
+                redirectAttributes.addFlashAttribute("email", email);
+                return "redirect:/email-reset";
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка: " + e.getMessage());
+            return "redirect:/email-reset";
+        }
     }
 
     @PostMapping("/reset-password")
@@ -164,6 +219,7 @@ public class AuthorizationController {
 
         if (!newPassword.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("error", "Пароли не совпадают");
+            redirectAttributes.addFlashAttribute("email", email);
             return "redirect:/reset-password";
         }
 
@@ -172,12 +228,16 @@ public class AuthorizationController {
             user.setPassword(passwordEncoder.encode(newPassword));
             userService.update(user.getId(), user);
 
+            // Очищаем сессию
             session.removeAttribute("resetEmail");
+            session.removeAttribute("resetCode");
+
             redirectAttributes.addFlashAttribute("message", "Пароль успешно изменен");
             return "redirect:/login";
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ошибка при сбросе пароля: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("email", email);
             return "redirect:/reset-password";
         }
     }

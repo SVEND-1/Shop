@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог товаров</title>
     <style>
+        /* Существующие стили остаются без изменений */
         body {
             font-family: Arial, sans-serif;
             max-width: 1200px;
@@ -13,7 +14,6 @@
             background-color: #f5f5f5;
         }
 
-        /* Стили для фильтров */
         .filters-section {
             background: white;
             padding: 20px;
@@ -219,6 +219,79 @@
             grid-column: 1 / -1;
         }
 
+        /* Новые стили для пагинации */
+        .pagination-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            gap: 15px;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9em;
+            margin: 0 15px;
+        }
+
+        .pagination-btn {
+            padding: 10px 20px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .pagination-btn:hover:not(.disabled) {
+            background: #3498db;
+            color: white;
+        }
+
+        .pagination-btn.disabled {
+            border-color: #bdc3c7;
+            color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .pagination-numbers {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .page-number {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .page-number:hover:not(.active) {
+            background: #f8f9fa;
+            border-color: #3498db;
+        }
+
+        .page-number.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .page-dots {
+            color: #666;
+            padding: 0 5px;
+        }
+
         @media (max-width: 768px) {
             .categories-filter {
                 justify-content: center;
@@ -228,6 +301,18 @@
                 flex: 1;
                 min-width: 120px;
                 text-align: center;
+            }
+
+            .pagination-section {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .pagination-numbers {
+                order: -1;
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 10px;
             }
         }
     </style>
@@ -322,7 +407,7 @@
         </div>
 
         <!-- Кнопка добавления в корзину -->
-        <form class="cart-form" th:action="@{catalog/add}" method="post" target="hiddenFrame">
+        <form class="cart-form" th:action="@{/product/catalog/add}" method="post" target="hiddenFrame">
             <input type="hidden" name="productId" th:value="${product.id}">
             <button type="submit"
                     class="add-to-cart-btn"
@@ -344,54 +429,112 @@
     </button>
 </div>
 
+<!-- Пагинация -->
+<div th:if="${totalPages > 1}" class="pagination-section">
+    <!-- Кнопка "Назад" -->
+    <a th:href="@{/product/catalog(page=${currentPage - 1}, size=${pageSize}, category=${selectedCategory})}"
+       class="pagination-btn"
+       th:classappend="${!hasPrevious} ? 'disabled'"
+       th:if="${hasPrevious}">
+        ← Назад
+    </a>
+    <span th:unless="${hasPrevious}" class="pagination-btn disabled">← Назад</span>
+
+    <!-- Номера страниц -->
+    <div class="pagination-numbers">
+        <th:block th:each="page : ${#numbers.sequence(0, totalPages - 1)}">
+            <th:block th:if="${(page >= currentPage - 2 and page <= currentPage + 2) or page == 0 or page == totalPages - 1}">
+                <a th:href="@{/product/catalog(page=${page}, size=${pageSize}, category=${selectedCategory})}"
+                   class="page-number"
+                   th:classappend="${page == currentPage} ? 'active'">
+                    <span th:text="${page + 1}">1</span>
+                </a>
+            </th:block>
+            <th:block th:if="${page == currentPage - 3 and currentPage > 3}">
+                <span class="page-dots">...</span>
+            </th:block>
+            <th:block th:if="${page == currentPage + 3 and currentPage < totalPages - 4}">
+                <span class="page-dots">...</span>
+            </th:block>
+        </th:block>
+    </div>
+
+    <!-- Кнопка "Вперед" -->
+    <a th:href="@{/product/catalog(page=${currentPage + 1}, size=${pageSize}, category=${selectedCategory})}"
+       class="pagination-btn"
+       th:classappend="${!hasNext} ? 'disabled'"
+       th:if="${hasNext}">
+        Вперед →
+    </a>
+    <span th:unless="${hasNext}" class="pagination-btn disabled">Вперед →</span>
+
+    <!-- Информация о странице -->
+    <div class="pagination-info">
+        Страница <span th:text="${currentPage + 1}">1</span> из <span th:text="${totalPages}">1</span>
+        | Показано <span th:text="${products.size()}">0</span> из <span th:text="${totalItems}">0</span> товаров
+    </div>
+</div>
+
 <iframe name="hiddenFrame" style="display: none;"></iframe>
 
 <script>
     let currentCategory = 'ALL';
 
     function filterByCategory(category) {
-        // Обновляем активную кнопку
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
+        // Всегда сбрасываем на первую страницу при смене категории
+        if (category === 'ALL') {
+            window.location.href = `/product/catalog?page=0`;
+        } else {
+            window.location.href = `/product/catalog?category=${category}&page=0`;
+        }
+    }
 
-        currentCategory = category;
+    function resetFilter() {
+        // Сбрасываем на первую страницу
+        window.location.href = `/product/catalog?page=0`;
+    }
 
-        // Показываем/скрываем товары
-        const productCards = document.querySelectorAll('.product-card');
-        let visibleCount = 0;
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Определяем активную категорию из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlCategory = urlParams.get('category');
 
-        productCards.forEach(card => {
-            const productCategory = card.getAttribute('data-category');
-
-            if (category === 'ALL' || productCategory === category) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
+        if (urlCategory) {
+            currentCategory = urlCategory.toUpperCase();
+            // Обновляем активную кнопку
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === getCategoryName(currentCategory)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
 
         // Обновляем информацию о фильтре
-        updateFilterInfo(category, visibleCount);
-
-        // Показываем/скрываем сообщение "нет товаров"
-        const noProductsMessage = document.getElementById('noProductsMessage');
-        const resetBtn = document.querySelector('.reset-filter');
-
-        if (visibleCount === 0) {
-            noProductsMessage.style.display = 'block';
-        } else {
-            noProductsMessage.style.display = 'none';
-        }
+        const totalProducts = document.querySelectorAll('.product-card').length;
+        updateFilterInfo(currentCategory, totalProducts);
 
         // Показываем кнопку сброса если фильтр активен
-        if (category !== 'ALL') {
+        const resetBtn = document.querySelector('.reset-filter');
+        if (urlCategory) {
             resetBtn.style.display = 'inline-block';
-        } else {
-            resetBtn.style.display = 'none';
         }
+    });
+
+    function getCategoryName(categoryKey) {
+        const categoryNames = {
+            'ALL': 'Все товары',
+            'ELECTRONICS': 'Электроника',
+            'CLOTHING': 'Одежда',
+            'BOOKS': 'Книги',
+            'FOOD': 'Еда',
+            'SPORTS': 'Спорт товары',
+            'HOME': 'Товары для дома',
+            'BEAUTY': 'Красота',
+            'OTHER': 'Другое'
+        };
+        return categoryNames[categoryKey] || categoryKey;
     }
 
     function updateFilterInfo(category, count) {
@@ -408,23 +551,15 @@
             'OTHER': 'Другое'
         };
 
+        // Получаем общее количество из Thymeleaf
+        const totalItems = parseInt('${totalItems}') || count;
+
         if (category === 'ALL') {
-            filterStatus.textContent = `Показаны все товары (${count} шт.)`;
+            filterStatus.textContent = `Показаны все товары (${count} из ${totalItems})`;
         } else {
-            filterStatus.textContent = `Категория: ${categoryNames[category]} (${count} товаров)`;
+            filterStatus.textContent = `Категория: ${categoryNames[category]} (${count} из ${totalItems})`;
         }
     }
-
-    function resetFilter() {
-        filterByCategory('ALL');
-    }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Показываем общее количество товаров
-        const totalProducts = document.querySelectorAll('.product-card').length;
-        updateFilterInfo('ALL', totalProducts);
-    });
 </script>
 
 </body>

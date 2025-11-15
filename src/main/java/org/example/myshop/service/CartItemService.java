@@ -95,19 +95,6 @@ public class CartItemService {
         cartItemRepository.deleteById(cartItemId);
     }
 
-    public void removeItemFromCart(Long cartId, Long productId) {
-        if (!cartRepository.existsById(cartId)) {
-            throw new EntityNotFoundException("Корзина не найдена");
-        }
-
-        if (!productRepository.existsById(productId)) {
-            throw new EntityNotFoundException("Продукт не найден");
-        }
-
-        cartItemRepository.deleteByCartIdAndProductId(cartId, productId);
-    }
-
-
     public void clearCart(Long cartId) {
         if (!cartRepository.existsById(cartId)) {
             throw new EntityNotFoundException("Корзина не найдена");
@@ -115,22 +102,5 @@ public class CartItemService {
 
         List<CartItem> cartItems = cartItemRepository.findAllByCartId(cartId);
         cartItemRepository.deleteAll(cartItems);
-    }
-
-    public Optional<CartItem> findByCartIdAndProductId(Long cartId, Long productId) {
-        return cartItemRepository.findByCartIdAndProductId(cartId, productId);
-    }
-
-    public BigDecimal calculateCartTotal(Long cartId) {
-        List<CartItem> cartItems = cartItemRepository.findAllByCartId(cartId);
-
-        return cartItems.stream()
-                .map(CartItem::getPrice)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public Integer getCartItemsCount(Long cartId) {
-        return cartItemRepository.findAllByCartId(cartId).size();
     }
 }

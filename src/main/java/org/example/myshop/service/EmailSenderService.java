@@ -10,8 +10,9 @@ import java.util.Random;
 
 @Service
 @Transactional
-public class EmailSenderService {//TODO ДОБАВИТЬ МНОГОПОТОЧНОСТЬ
+public class EmailSenderService {
     private JavaMailSender javaMailSender;
+
 
     @Autowired
     public EmailSenderService(JavaMailSender javaMailSender) {
@@ -28,12 +29,30 @@ public class EmailSenderService {//TODO ДОБАВИТЬ МНОГОПОТОЧН�
         javaMailSender.send(message);
     }
 
-    public String sendVerification(String to) {
+    public void sendPasswordResetEmail(String to, String code) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("onlineshopkortex@gmail.com");
+        message.setTo(to);
+        message.setSubject("Kortex: Сброс пароля [" + code + "]");
+        message.setText("""
+            Запрос на сброс пароля
+            
+            Ваш код подтверждения: """ + code + """
+            
+            Введите этот код на странице подтверждения для сброса пароля.
+            
+            Если вы не запрашивали сброс пароля, проигнорируйте это письмо.
+            
+            С уважением,
+            Команда Kortex
+            """);
 
-        Random random = new Random();
-        int code = random.nextInt(100000,999999);
+        javaMailSender.send(message);
+    }
+
+    public String sendVerification(String to,String code) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("onlineshopkortex@gmail.com");
 
         String subject = "Kortex: Ваш код для входа [" + code + "]";
         String content = """
@@ -54,6 +73,11 @@ public class EmailSenderService {//TODO ДОБАВИТЬ МНОГОПОТОЧН�
         message.setText(content);
 
         javaMailSender.send(message);
-        return String.valueOf(code);
+        return code;
+    }
+
+    public String generateVerificationCode() {
+        Random random = new Random();
+        return String.valueOf(random.nextInt(100000, 999999));
     }
 }

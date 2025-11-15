@@ -100,15 +100,7 @@
         </a>
     </div>
 
-    <!-- Уведомления -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    <!-- Уведомления УДАЛЕНЫ -->
 
     <!-- Навигация -->
     <ul class="nav nav-tabs nav-tabs-custom mb-4">
@@ -227,25 +219,19 @@
                                     <label class="form-label">Название товара *</label>
                                     <input type="text" class="form-control" name="name"
                                            placeholder="Введите название товара" required
-                                           minlength="2" maxlength="100"
-                                           th:value="${product?.name}">
-                                    <div class="form-text">Минимум 2 символа, максимум 100</div>
+                                           minlength="2" maxlength="100">
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Цена (₽) *</label>
                                     <input type="number" class="form-control" name="price"
-                                           step="0.01" min="0.01" placeholder="0.00" required
-                                           th:value="${product?.price}">
-                                    <div class="form-text">Минимальная цена: 0.01 ₽</div>
+                                           step="0.01" min="0.01" placeholder="0.00" required>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Количество *</label>
                                     <input type="number" class="form-control" name="count"
-                                           min="0" placeholder="0" required
-                                           th:value="${product?.count}">
-                                    <div class="form-text">Укажите количество товара на складе</div>
+                                           min="0" placeholder="0" required>
                                 </div>
                             </div>
 
@@ -256,8 +242,7 @@
                                         <option value="">Выберите категорию</option>
                                         <option th:each="cat : ${categories}"
                                                 th:value="${cat}"
-                                                th:text="${cat.displayName}"
-                                                th:selected="${product?.category == cat}">
+                                                th:text="${cat.displayName}">
                                         </option>
                                     </select>
                                 </div>
@@ -266,16 +251,13 @@
                                     <label class="form-label">Описание</label>
                                     <textarea class="form-control" name="description"
                                               rows="3" placeholder="Описание товара..."
-                                              maxlength="500"
-                                              th:text="${product?.description}"></textarea>
-                                    <div class="form-text">Максимум 500 символов</div>
+                                              maxlength="500"></textarea>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Изображение товара</label>
                                     <input type="file" class="form-control" name="imageFile"
                                            accept="image/jpeg,image/png,image/gif">
-                                    <div class="form-text">JPG, PNG, GIF до 5MB</div>
                                 </div>
                             </div>
                         </div>
@@ -305,6 +287,7 @@
             </div>
             <form th:action="@{/seller/update}" method="post" enctype="multipart/form-data">
                 <!-- CSRF токен удален -->
+                <input type="hidden" id="editId" name="id">
 
                 <div class="modal-body">
                     <div class="row">
@@ -339,13 +322,11 @@
                                 <label class="form-label">Описание</label>
                                 <textarea class="form-control" id="editDescription" name="description"
                                           rows="3" maxlength="500"></textarea>
-                                <div class="form-text">Максимум 500 символов</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Новое изображение</label>
                                 <input type="file" class="form-control" name="imageFile"
                                        accept="image/jpeg,image/png,image/gif">
-                                <div class="form-text">Оставьте пустым, чтобы сохранить текущее изображение</div>
                             </div>
                         </div>
                     </div>
@@ -364,8 +345,6 @@
 <script>
     // Функция для редактирования товара
     function editProduct(id, name, price, count, description, category) {
-        console.log('Editing product:', {id, name, price, count, description, category});
-
         document.getElementById('editId').value = id || '';
         document.getElementById('editName').value = name || '';
         document.getElementById('editPrice').value = price || 0;
@@ -396,27 +375,15 @@
             });
         });
 
-        // Обработчик для всей карточки (опционально - для просмотра деталей)
+        // Обработчик для всей карточки
         document.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', function(e) {
-                // Если клик был по кнопкам действий - не делаем ничего
                 if (e.target.closest('.action-buttons')) {
                     return;
                 }
-
-                // Здесь можно добавить функциональность просмотра деталей товара
-                console.log('Card clicked:', this.dataset.id);
             });
         });
     });
-
-    // Автоскрытие уведомлений через 5 секунд
-    setTimeout(() => {
-        document.querySelectorAll('.alert').forEach(alert => {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        });
-    }, 5000);
 
     // Валидация форм
     document.addEventListener('DOMContentLoaded', function() {

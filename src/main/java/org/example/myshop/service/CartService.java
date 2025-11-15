@@ -18,13 +18,11 @@ import java.util.NoSuchElementException;
 public class CartService {
 
     private final CartRepository cartRepository;
-    private final ProductService productService;
     private final CartItemService cartItemService;
 
     @Autowired
-    public CartService(CartRepository cartRepository, ProductService productService, CartItemService cartItemService) {
+    public CartService(CartRepository cartRepository, CartItemService cartItemService) {
         this.cartRepository = cartRepository;
-        this.productService = productService;
         this.cartItemService = cartItemService;
     }
 
@@ -72,38 +70,9 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    public Cart cartAddProduct(Cart cart, Product product,int quantity) {
-        cart.addCartItem(product,quantity);
-        return cartRepository.save(cart);
-    }
     public Cart cartAddProduct(Long cartId, Long productId) {
         Cart cart = getById(cartId);
         cartItemService.addItemToCart(cartId,productId,1);
         return cartRepository.save(cart);
-    }
-
-
-
-    public void cartRemoveProduct(Long userId, Long productId) {
-        Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
-            throw new RuntimeException("Корзина не найдена для пользователя: " + userId);
-        }
-
-        if (cart.getCartItems() == null) {
-            return;
-        }
-
-        boolean removed = cart.getCartItems().removeIf(item ->
-                item.getProduct() != null &&
-                        item.getProduct().getId().equals(productId)
-        );
-
-        if (removed) {
-            cartRepository.save(cart);
-            System.out.println("Товар с ID " + productId + " удален из корзины");
-        } else {
-            System.out.println("Товар с ID " + productId + " не найден в корзине");
-        }
     }
 }

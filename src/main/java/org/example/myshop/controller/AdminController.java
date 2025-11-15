@@ -33,10 +33,10 @@ public class AdminController {
     public String appointCourier(@RequestParam Long userId) {
         User user = userService.appoint(userId, User.Role.COURIER);
         if(user.getRole().name().equals(User.Role.COURIER.name())) {
-            return "redirect:/admin?success=true";
+            return "redirect:/admin";
         }
         else {
-            return "redirect:/admin?success=false";
+            return "redirect:/admin";
         }
     }
 
@@ -44,10 +44,10 @@ public class AdminController {
     public String appointSeller(@RequestParam Long userId) {
         User user = userService.appoint(userId, User.Role.SELLER);
         if(user.getRole().name().equals(User.Role.COURIER.name())) {
-            return "redirect:/admin?success=true";
+            return "redirect:/admin";
         }
         else {
-            return "redirect:/admin?success=false";
+            return "redirect:/admin";
         }
     }
 
@@ -55,10 +55,10 @@ public class AdminController {
     public String downgradeCourier(@RequestParam Long userId) {
         User user = userService.downgrade(userId, User.Role.COURIER);
         if(user.getRole().name().equals(User.Role.USER.name())) {
-            return "redirect:/admin?success=true";
+            return "redirect:/admin";
         }
         else {
-            return "redirect:/admin?success=false";
+            return "redirect:/admin";
         }
     }
 
@@ -66,10 +66,10 @@ public class AdminController {
     public String downgradeSeller(@RequestParam Long userId) {
         User user = userService.downgrade(userId, User.Role.SELLER);
         if(user.getRole().name().equals(User.Role.USER.name())) {
-            return "redirect:/admin?success=true";
+            return "redirect:/admin";
         }
         else {
-            return "redirect:/admin?success=false";
+            return "redirect:/admin";
         }
     }
 

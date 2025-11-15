@@ -7,6 +7,7 @@ import org.example.myshop.service.CartService;
 import org.example.myshop.service.ProductService;
 import org.example.myshop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
@@ -33,33 +34,47 @@ public class ProductController {
     }
 
     @GetMapping("/catalog")
-    public String CatalogPage(@RequestParam(required = false) String category, Model model) {
-        List<Product> products;
+    public String CatalogPage(
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            Model model) {
+
+        Page<Product> productsPage;
+        List<Product> availableProducts;
 
         if (category != null && !category.isEmpty()) {
             try {
                 Product.Category productCategory = Product.Category.valueOf(category.toUpperCase());
-                products = productService.getProductsByCategory(productCategory);
+                productsPage = productService.getProductsByCategoryWithPagination(productCategory, page, size);
                 model.addAttribute("selectedCategory", productCategory);
             } catch (IllegalArgumentException e) {
-                products = productService.getAvailableProducts();
+                productsPage = productService.getAvailableProductsWithPagination(page, size);
                 model.addAttribute("errorMessage", "Категория не найдена");
             }
         } else {
-            products = productService.getAvailableProducts();
+            productsPage = productService.getAvailableProductsWithPagination(page, size);
         }
 
-        List<Product> availableProducts  = products.stream()
+        availableProducts = productsPage.getContent().stream()
                 .filter(product -> product.getCount() > 0)
                 .collect(Collectors.toList());
 
-        model.addAttribute("products", availableProducts );
+        model.addAttribute("products", availableProducts);
         model.addAttribute("categories", Product.Category.values());
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalPages", productsPage.getTotalPages());
+        model.addAttribute("totalItems", productsPage.getTotalElements());
+        model.addAttribute("hasNext", productsPage.hasNext());
+        model.addAttribute("hasPrevious", productsPage.hasPrevious());
+
         return "catalog";
     }
 
     @PostMapping("/catalog/add")
-    public String addProductToCart(@RequestParam Long productId) {//TODO многопоточность + проверки
+    public String addProductToCart(@RequestParam Long productId) {
         User user = userService.getCurrentUser();
         Cart cart = cartService.getCartByUserId(user.getId());
         cartService.cartAddProduct(cart.getId(),productId);

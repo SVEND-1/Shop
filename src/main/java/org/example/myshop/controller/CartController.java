@@ -14,7 +14,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/cart")
-public class CartController {//Todo Добавить заказы
+public class CartController {
     private final CartService cartService;
     private final UserService userService;
     private final CartItemService cartItemService;

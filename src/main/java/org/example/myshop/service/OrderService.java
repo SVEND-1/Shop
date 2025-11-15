@@ -98,11 +98,7 @@ public class OrderService {
         return finalOrder;
     }
 
-    /**
-     * Проверка доступности товаров в корзине
-     */
     private void validateCartItems(Cart cart) {
-        System.out.println("🔍 Проверка доступности товаров...");
 
         for (CartItem cartItem : cart.getCartItems()) {
             Product product = cartItem.getProduct();
@@ -110,7 +106,6 @@ public class OrderService {
                 throw new RuntimeException("Товар не найден в корзине");
             }
 
-            // Получаем актуальные данные о товаре из базы
             Product actualProduct = productService.getById(product.getId());
             if(actualProduct == null) {
                 new RuntimeException("Товар не найден: " + product.getName());
@@ -121,15 +116,9 @@ public class OrderService {
                         ". Доступно: " + actualProduct.getCount() +
                         ", запрошено: " + cartItem.getQuantity());
             }
-
-            System.out.println("   ✅ " + actualProduct.getName() + " - " +
-                    cartItem.getQuantity() + " шт. (доступно: " + actualProduct.getCount() + ")");
         }
     }
 
-    /**
-     * Расчет общей суммы заказа
-     */
     private BigDecimal calculateTotalAmount(Cart cart) {
         BigDecimal total = BigDecimal.ZERO;
 
@@ -137,20 +126,12 @@ public class OrderService {
             BigDecimal itemPrice = BigDecimal.valueOf(cartItem.getProduct().getPrice());
             BigDecimal itemTotal = itemPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             total = total.add(itemTotal);
-
-            System.out.println("   💰 " + cartItem.getProduct().getName() + " - " +
-                    cartItem.getQuantity() + " × $" + itemPrice + " = $" + itemTotal);
         }
 
-        System.out.println("   📊 Общая сумма заказа: $" + total);
         return total;
     }
 
-    /**
-     * Создание элементов заказа из корзины
-     */
     private List<OrderItem> createOrderItemsFromCart(Cart cart, Order order) {
-        System.out.println("📝 Создание элементов заказа...");
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (CartItem cartItem : cart.getCartItems()) {
@@ -159,38 +140,19 @@ public class OrderService {
             orderItem.setProduct(cartItem.getProduct());
             orderItem.setQuantity(cartItem.getQuantity());
 
-            // Устанавливаем цену на момент заказа
             BigDecimal itemPrice = BigDecimal.valueOf(cartItem.getProduct().getPrice());
             orderItem.setPrice(itemPrice);
 
-            // Рассчитываем общую стоимость позиции
             orderItem.setPrice(itemPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())));
 
             orderItems.add(orderItem);
-            System.out.println("   ✅ " + cartItem.getProduct().getName() + " - " +
-                    cartItem.getQuantity() + " шт.");
         }
 
-        // Сохраняем все элементы заказа
         List<OrderItem> savedItems = orderItemService.saveAll(orderItems);
-        System.out.println("   💾 Сохранено элементов заказа: " + savedItems.size());
 
         return savedItems;
     }
 
-    public List<Order> findAllByUserId(Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("пользователь с таким id не найден");
-        }
-
-        List<Order> orders = orderRepository.findAllByUserId((userId));
-
-        if (orders.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return orders;
-    }
 
     public Order findById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Заказ не найден"));
@@ -208,7 +170,7 @@ public class OrderService {
                 orderToUpdate.getCourier(),
                 orderToUpdate.getStatus(),
                 orderToUpdate.getTotalAmount(),
-                orderToUpdate.getOrderItems());
+                order.getOrderItems());
         return orderRepository.save(updatedOrder);
     }
 
@@ -219,13 +181,4 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
-    public Order updateStatus(Order order, Order.OrderStatus status) {
-        order.setStatus(status);
-        return orderRepository.save(order);
-    }
-    public Order updateStatus(Long orderId, Order.OrderStatus status) {
-        Order order = getById(orderId);
-        order.setStatus(status);
-        return orderRepository.save(order);
-    }
 }

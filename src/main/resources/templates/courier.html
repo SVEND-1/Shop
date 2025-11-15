@@ -573,13 +573,7 @@
                         </button>
                     </form>
 
-                    <!-- CANCELLED - отменен -->
-                    <form th:if="${order?.status?.name() == 'PENDING' or order?.status?.name() == 'DISPATCHED'}" th:action="@{/courier/orders/{id}/status(id=${order.id})}" method="post">
-                        <input type="hidden" name="status" value="CANCELLED">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите отменить заказ?')">
-                            <i class="fas fa-times-circle"></i> Отменить заказ
-                        </button>
-                    </form>
+
                 </div>
 
                 <!-- Для завершенных заказов -->
