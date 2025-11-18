@@ -18,12 +18,10 @@ import java.util.NoSuchElementException;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final OrderService orderService;
 
     @Autowired
-    public UserService(UserRepository userRepository, OrderService orderService) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.orderService = orderService;
     }
 
     public User getCurrentUser() {

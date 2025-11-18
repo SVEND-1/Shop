@@ -43,6 +43,7 @@ public class OrderService {
         return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("не найден"));
     }
 
+
     public Order setStatus(Order order, Order.OrderStatus status) {
         if(status == Order.OrderStatus.CANCELLED) {
             order.setCourier(null);
@@ -154,9 +155,6 @@ public class OrderService {
     }
 
 
-    public Order findById(Long id) {
-        return orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Заказ не найден"));
-    }
 
     public Order save(Order order) {
         return orderRepository.save(order);
