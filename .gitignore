@@ -1,13 +1,20 @@
 # Application properties with secrets
-application-local.env
+application-local.properties
 application-dev.properties
 application-prod.properties
 *.properties.local
+*.properties.enc
+*.keystore
+*.jks
 
 # Environment variables
 .env
 .env.*
 !.env.example
+
+# Docker
+docker-compose.override.yml
+docker-data/
 
 # IDE
 .idea/
@@ -15,22 +22,67 @@ application-prod.properties
 *.iml
 *.ipr
 .vscode/
+.settings/
+.project
+.classpath
+*.launch
+bin/
 
 # Build
 target/
 build/
+out/
 *.jar
 *.war
 *.ear
+*.zip
+*.tar.gz
 
 # Logs
 logs/
 *.log
+log/
+*.logs
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
 
 # Temporary files
 *.tmp
 *.temp
+*.swp
+*.swo
+*~
+
+# Test reports
+test-output/
+surefire-reports/
+failsafe-reports/
+
+# Coverage
+*.coverage
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Maven
+dependency-reduced-pom.xml
+maven-ant-tasks*.jar
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+gradle-app.setting
+
+# Package Files
+*.rar
+*.7z

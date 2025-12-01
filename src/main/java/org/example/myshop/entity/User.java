@@ -1,8 +1,5 @@
 package org.example.myshop.entity;
 
-
-import lombok.Getter;
-import lombok.Setter;
 import org.example.myshop.entity.dto.UserDTO;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

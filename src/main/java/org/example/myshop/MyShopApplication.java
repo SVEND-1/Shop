@@ -10,4 +10,5 @@ public class MyShopApplication {
         SpringApplication.run(MyShopApplication.class, args);
     }
 
+
 }

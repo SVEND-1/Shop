@@ -1,6 +1,5 @@
 package org.example.myshop.entity;
 
-import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
