@@ -1,31 +1,16 @@
 services:
-  # PostgreSQL Database
-  - type: postgres
-    name: myshop-db
-    databaseName: myshop
-    user: myshop_user
-    plan: free
-
-  # Spring Boot Application
   - type: web
-    name: myshop-app
+    name: myshop
     env: java
-    region: frankfurt  # или другой
+    region: frankfurt
     plan: free
     buildCommand: mvn clean package -DskipTests
     startCommand: java -jar target/*.jar
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
-      - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: myshop-db
-          property: connectionString
-      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
-        value: update
       - key: SERVER_PORT
         value: 8080
-    disk:
-      name: uploads
-      mountPath: /app/uploads
-      sizeGB: 1
+      # Временная БД для теста
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:h2:mem:testdb
