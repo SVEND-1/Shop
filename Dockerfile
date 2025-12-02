@@ -12,7 +12,7 @@ RUN echo "=== Содержимое папки ===" && \
     echo "=== Java файлы ===" && \
     find . -name "*.java" -type f 2>/dev/null | head -10
 
-# Собираем проект (без Lombok ошибок не будет)
+# Собираем проект
 RUN mvn clean package -DskipTests
 
 # Этап 2: Запуск
