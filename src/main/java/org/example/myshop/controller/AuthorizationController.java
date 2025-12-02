@@ -75,16 +75,16 @@ public class AuthorizationController {
         try {
             String verificationCode = emailSenderService.generateVerificationCode();
 
-            new Thread(() -> {
-                emailSenderService.sendVerification(email,verificationCode);
-            }).start();
+//            new Thread(() -> {
+//                emailSenderService.sendVerification(email,verificationCode);
+//            }).start();
 
             session.setAttribute("pendingName", name);
             session.setAttribute("pendingEmail", email);
             session.setAttribute("pendingPassword", password);
             session.setAttribute("verificationCode", verificationCode);
 
-            redirectAttributes.addFlashAttribute("email", email);
+            redirectAttributes.addFlashAttribute("email", verificationCode);
             return "redirect:/email";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ошибка отправки кода: " + e.getMessage());
