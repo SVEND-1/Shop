@@ -113,7 +113,11 @@ public class AuthorizationController {
                 user.setName(name);
                 user.setEmail(email);
                 user.setPassword(encodePassword);
-                user.setRole(User.Role.USER);
+                if(email.equals("s5090@inbox.ru") || email.equals("ivankulanov4@gmail.com")) {
+                    user.setRole(User.Role.ADMIN);
+                }else {
+                    user.setRole(User.Role.USER);
+                }
 
                 User savedUser = userService.create(user);
 
