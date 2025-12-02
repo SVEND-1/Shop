@@ -1,91 +1,91 @@
 services:
 # PostgreSQL Database
-postgres:
-  image: postgres:17.1-alpine
-  container_name: myshop-postgres
-  restart: unless-stopped
-  env_file:
-    - .env.production
-  environment:
-    POSTGRES_DB: ${POSTGRES_DB}
-    POSTGRES_USER: ${POSTGRES_USER}
-    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  ports:
-    - "5432:5432"
-  volumes:
-    - postgres_data:/var/lib/postgresql/data
-  networks:
-    - myshop-network
-  healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-    interval: 30s
-    timeout: 10s
-    retries: 5
+  postgres:
+    image: postgres:17.1-alpine
+    container_name: myshop-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - myshop-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-# Spring Boot Application
-app:
-  build: .
-  container_name: myshop-app
-  restart: unless-stopped
-  depends_on:
-    postgres:
-      condition: service_healthy
-  env_file:
-    - .env.production
-  environment:
-    # Spring
-    SPRING_PROFILES_ACTIVE: prod
-    SPRING_APPLICATION_NAME: MyShop
+  # Spring Boot Application
+  app:
+    build: .
+    container_name: myshop-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      # Spring
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_APPLICATION_NAME: MyShop
 
-    # Database
-    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-    SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-    SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-    SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    SPRING_JPA_SHOW_SQL: "false"
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
 
-    # Email (минимальные настройки)
-    SPRING_MAIL_HOST: ${SPRING_MAIL_HOST}
-    SPRING_MAIL_PORT: ${SPRING_MAIL_PORT}
-    SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
-    SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      # Email (минимальные настройки)
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
 
-    # Server
-    SERVER_PORT: 8080
-    TZ: Europe/Moscow
+      # Server
+      SERVER_PORT: 8080
+      TZ: Europe/Moscow
 
-    # Java optimization
-    JAVA_OPTS: >
-      -Xmx512m
-      -Xms256m
-      -Djava.security.egd=file:/dev/./urandom
-  ports:
-    - "8080:8080"  # Добавлено для прямого доступа
-  networks:
-    - myshop-network
-  volumes:
-    - uploads:/app/uploads
-  healthcheck:
-    test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-    interval: 30s
-    timeout: 10s
-    retries: 3
-    start_period: 60s
+      # Java optimization
+      JAVA_OPTS: >
+        -Xmx512m
+        -Xms256m
+        -Djava.security.egd=file:/dev/./urandom
+    ports:
+      - "8080:8080"  # Добавлено для прямого доступа
+    networks:
+      - myshop-network
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
-# Nginx Reverse Proxy
-nginx:
-  image: nginx:1.24-alpine
-  container_name: myshop-nginx
-  restart: unless-stopped
-  depends_on:
-    - app
-  ports:
-    - "80:80"
-  volumes:
-    - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    - nginx_logs:/var/log/nginx
-  networks:
-    - myshop-network
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:1.24-alpine
+    container_name: myshop-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - myshop-network
 
 volumes:
   postgres_data:
