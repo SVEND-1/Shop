@@ -113,18 +113,7 @@ public class AuthorizationController {
                 user.setName(name);
                 user.setEmail(email);
                 user.setPassword(encodePassword);
-
-                String cleanEmail = email.trim().toLowerCase();
-                boolean isAdmin = cleanEmail.equals("s5090@inbox.ru") ||
-                        cleanEmail.equals("ivankulanov4@gmail.com");
-
-                if (isAdmin) {
-                    user.setRole(User.Role.ADMIN);
-                    System.out.println("Setting ADMIN role for: " + email);
-                } else {
-                    user.setRole(User.Role.USER);
-                    System.out.println("Setting USER role for: " + email);
-                }
+                user.setRole(User.Role.USER);
 
                 User savedUser = userService.create(user);
 
